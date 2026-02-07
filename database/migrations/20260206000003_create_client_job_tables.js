@@ -116,6 +116,8 @@ exports.up = function(knex) {
       table.increments('requirementtypeid').primary();
       table.uuid('uuid').notNullable().unique();
       table.string('requirementtypename', 50);
+      table.string('requirementtypedescription', 500);
+      table.string('requirementtypeimage', 1000);
       table.datetime('addeddate');
       table.datetime('updateddate');
       table.datetime('deleteddate');

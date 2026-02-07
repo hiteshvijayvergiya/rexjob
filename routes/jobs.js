@@ -1,16 +1,25 @@
-// routes/jobs.js - Job Management Routes
+// routes/jobs.js - COMPLETE
+
 const express = require('express');
 const router = express.Router();
-const { isAuthenticated } = require('../middleware/auth');
+const jobsController = require('../controllers/jobsController');
 
-router.use(isAuthenticated);
+// List jobs
+router.get('/', jobsController.index);
 
-router.get('/', (req, res) => {
-  res.render('jobs/index', { title: 'Manage Jobs' });
-});
+// Create job form
+router.get('/create', jobsController.create);
 
-router.get('/create', (req, res) => {
-  res.render('jobs/create', { title: 'Post New Job' });
-});
+// Store job
+router.post('/store', jobsController.store);
+
+// Edit job form
+router.get('/:id/edit', jobsController.edit);
+
+// Update job
+router.put('/:id', jobsController.update);
+
+// Delete job
+router.delete('/:id/delete', jobsController.delete);
 
 module.exports = router;

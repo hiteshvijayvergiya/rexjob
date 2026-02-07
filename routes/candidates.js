@@ -1,12 +1,13 @@
-// routes/candidates.js
+// routes/candidates.js - COMPLETE
+
 const express = require('express');
 const router = express.Router();
-const { isAuthenticated } = require('../middleware/auth');
+const candidatesController = require('../controllers/candidatesController');
 
-router.use(isAuthenticated);
+// List candidates
+router.get('/', candidatesController.index);
 
-router.get('/', (req, res) => {
-  res.render('candidates/index', { title: 'Candidates' });
-});
+// View candidate
+router.get('/:id', candidatesController.view);
 
 module.exports = router;

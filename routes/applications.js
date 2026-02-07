@@ -1,12 +1,16 @@
-// routes/applications.js
+// routes/applications.js - COMPLETE
+
 const express = require('express');
 const router = express.Router();
-const { isAuthenticated } = require('../middleware/auth');
+const applicationsController = require('../controllers/applicationsController');
 
-router.use(isAuthenticated);
+// List applications
+router.get('/', applicationsController.index);
 
-router.get('/', (req, res) => {
-  res.render('applications/index', { title: 'Applications' });
-});
+// View application
+router.get('/:id', applicationsController.view);
+
+// Update status
+router.post('/update-status', applicationsController.updateStatus);
 
 module.exports = router;
