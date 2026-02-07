@@ -1,0 +1,176 @@
+<div class="container-fluid py-4">
+    <h2 class="mb-4">Dashboard</h2>
+    
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Total Jobs</h6>
+                            <h3 class="mb-0"><%= stats.totalJobs %></h3>
+                            <small class="text-success"><%= stats.activeJobs %> Active</small>
+                        </div>
+                        <div class="icon-circle bg-primary bg-opacity-10 text-primary">
+                            <i class="fas fa-briefcase fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Applications</h6>
+                            <h3 class="mb-0"><%= stats.totalApplications %></h3>
+                            <small class="text-info">+<%= stats.todayApplications %> Today</small>
+                        </div>
+                        <div class="icon-circle bg-success bg-opacity-10 text-success">
+                            <i class="fas fa-file-alt fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Candidates</h6>
+                            <h3 class="mb-0"><%= stats.totalCandidates %></h3>
+                            <small class="text-info">+<%= stats.todayCandidates %> Today</small>
+                        </div>
+                        <div class="icon-circle bg-warning bg-opacity-10 text-warning">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Newsletter</h6>
+                            <h3 class="mb-0"><%= stats.newsletterSubscribers %></h3>
+                            <small class="text-muted">Subscribers</small>
+                        </div>
+                        <div class="icon-circle bg-info bg-opacity-10 text-info">
+                            <i class="fas fa-envelope fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Data -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Recent Applications</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Job</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (recentApplications && recentApplications.length > 0) { %>
+                                    <% recentApplications.forEach(app => { %>
+                                        <tr>
+                                            <td><%= app.applyjobname %></td>
+                                            <td><%= app.requirementname %></td>
+                                            <td><%= moment(app.addeddate).fromNow() %></td>
+                                            <td>
+                                                <% if (app.isshortlisted) { %>
+                                                    <span class="badge bg-success">Shortlisted</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-secondary">Pending</span>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No applications yet</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Recent Job Postings</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Job Title</th>
+                                    <th>Applications</th>
+                                    <th>Posted</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (recentJobs && recentJobs.length > 0) { %>
+                                    <% recentJobs.forEach(job => { %>
+                                        <tr>
+                                            <td><%= job.requirementname %></td>
+                                            <td><%= job.applicationCount %></td>
+                                            <td><%= moment(job.addeddate).fromNow() %></td>
+                                            <td>
+                                                <% if (job.isactive) { %>
+                                                    <span class="badge bg-success">Active</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-secondary">Inactive</span>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No jobs posted yet</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+</style>

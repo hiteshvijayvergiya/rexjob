@@ -1,0 +1,104 @@
+<footer class="footer bg-dark text-white mt-5">
+    <div class="container py-5">
+        <div class="row">
+            <!-- About -->
+            <div class="col-md-4 mb-4">
+                <h5 class="text-uppercase mb-3"><%= appName %></h5>
+                <p class="text-muted">
+                    Your trusted partner in finding the perfect job. Connect with top companies and build your dream career.
+                </p>
+                <div class="social-links mt-3">
+                    <a href="#" class="text-white me-3"><i class="fab fa-facebook-f fa-lg"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-linkedin-in fa-lg"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="col-md-2 mb-4">
+                <h5 class="text-uppercase mb-3">Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="/" class="text-muted text-decoration-none">Home</a></li>
+                    <li class="mb-2"><a href="/career" class="text-muted text-decoration-none">Career</a></li>
+                    <li class="mb-2"><a href="/about" class="text-muted text-decoration-none">About Us</a></li>
+                    <li class="mb-2"><a href="/contact" class="text-muted text-decoration-none">Contact</a></li>
+                </ul>
+            </div>
+            
+            <!-- For Employers -->
+            <div class="col-md-2 mb-4">
+                <h5 class="text-uppercase mb-3">For Employers</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="/jobs/post" class="text-muted text-decoration-none">Post a Job</a></li>
+                    <li class="mb-2"><a href="/dashboard" class="text-muted text-decoration-none">Dashboard</a></li>
+                    <li class="mb-2"><a href="/applications" class="text-muted text-decoration-none">Applications</a></li>
+                    <li class="mb-2"><a href="/candidates" class="text-muted text-decoration-none">Candidates</a></li>
+                </ul>
+            </div>
+            
+            <!-- Newsletter -->
+            <div class="col-md-4 mb-4">
+                <h5 class="text-uppercase mb-3">Newsletter</h5>
+                <p class="text-muted">Subscribe to get latest job updates</p>
+                <form id="newsletterForm">
+                    <div class="input-group">
+                        <input type="email" class="form-control" id="newsletterEmail" placeholder="Your email" required>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted d-block mt-2" id="newsletterMsg"></small>
+                </form>
+            </div>
+        </div>
+        
+        <hr class="my-4 bg-secondary">
+        
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start">
+                <p class="mb-0 text-muted">
+                    &copy; <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.
+                </p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <a href="/privacy-policy" class="text-muted text-decoration-none me-2">Privacy Policy</a>
+                <a href="/terms-and-conditions" class="text-muted text-decoration-none me-2">Terms & Conditions</a>
+                <a href="/cookie-policy" class="text-muted text-decoration-none me-2">Cookie Policy</a>
+                <a href="/do-not-sell" class="text-muted text-decoration-none me-2">Do Not Sell</a>
+                <a href="/faq" class="text-muted text-decoration-none">FAQs</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Newsletter Subscription Script -->
+<script>
+document.getElementById('newsletterForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('newsletterEmail').value;
+    const msgEl = document.getElementById('newsletterMsg');
+    
+    try {
+        const response = await fetch('/newsletter', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        
+        const data = await response.json();
+        
+        if (data.statusCode === 200) {
+            msgEl.className = 'text-success d-block mt-2';
+            msgEl.textContent = data.msg;
+            document.getElementById('newsletterEmail').value = '';
+        } else {
+            msgEl.className = 'text-danger d-block mt-2';
+            msgEl.textContent = data.msg;
+        }
+    } catch (error) {
+        msgEl.className = 'text-danger d-block mt-2';
+        msgEl.textContent = 'Failed to subscribe. Please try again.';
+    }
+});
+</script>
