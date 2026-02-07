@@ -1,0 +1,281 @@
+<!-- Job Details Page -->
+<section class="page-header bg-primary text-white py-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a href="/" class="text-white">Home</a></li>
+                <li class="breadcrumb-item"><a href="/career" class="text-white">Jobs</a></li>
+                <li class="breadcrumb-item active text-white">Job Details</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Main Job Details -->
+            <div class="col-lg-8 mb-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h2 class="fw-bold mb-3"><%= job.requirementname %></h2>
+                        
+                        <div class="mb-4">
+                            <span class="badge bg-primary me-2"><%= job.requirementtypename %></span>
+                            <% if (job.requirementpriorityname === 'Urgent') { %>
+                                <span class="badge bg-danger">Urgent</span>
+                            <% } %>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                <strong>Location:</strong> <%= job.cityname %>
+                            </div>
+                            <div class="col-md-6">
+                                <i class="fas fa-briefcase text-primary me-2"></i>
+                                <strong>Position:</strong> <%= job.requirementpositionname %>
+                            </div>
+                            <div class="col-md-6">
+                                <i class="fas fa-clock text-primary me-2"></i>
+                                <strong>Experience:</strong> <%= job.expstart || 0 %>-<%= job.expend || 0 %> years
+                            </div>
+                            <div class="col-md-6">
+                                <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                <strong>Posted:</strong> <%= moment(job.addeddate).format('MMM DD, YYYY') %>
+                            </div>
+                            <% if (job.requirementnoofposition) { %>
+                            <div class="col-md-6">
+                                <i class="fas fa-users text-primary me-2"></i>
+                                <strong>Openings:</strong> <%= job.requirementnoofposition %>
+                            </div>
+                            <% } %>
+                            <% if (job.requirementsalary) { %>
+                            <div class="col-md-6">
+                                <i class="fas fa-rupee-sign text-primary me-2"></i>
+                                <strong>Salary:</strong> <%= job.requirementsalary %>
+                            </div>
+                            <% } %>
+                        </div>
+
+                        <hr>
+
+                        <h4 class="fw-bold mb-3">Job Description</h4>
+                        <div class="mb-4">
+                            <%- job.requirementdescription %>
+                        </div>
+
+                        <% if (job.requirementskill) { %>
+                        <h4 class="fw-bold mb-3">Required Skills</h4>
+                        <div class="mb-4">
+                            <%- job.requirementskill %>
+                        </div>
+                        <% } %>
+
+                        <% if (job.requirementresponsibility) { %>
+                        <h4 class="fw-bold mb-3">Responsibilities</h4>
+                        <div class="mb-4">
+                            <%- job.requirementresponsibility %>
+                        </div>
+                        <% } %>
+
+                        <% if (job.requirementeducation) { %>
+                        <h4 class="fw-bold mb-3">Education</h4>
+                        <div class="mb-4">
+                            <%- job.requirementeducation %>
+                        </div>
+                        <% } %>
+
+                        <% if (job.requirementdocument) { %>
+                        <h4 class="fw-bold mb-3">Required Documents</h4>
+                        <div class="mb-4">
+                            <%= job.requirementdocument %>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Related Jobs -->
+                <% if (relatedJobs && relatedJobs.length > 0) { %>
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Related Jobs</h5>
+                    </div>
+                    <div class="card-body">
+                        <% relatedJobs.forEach(related => { %>
+                            <div class="border-bottom pb-3 mb-3">
+                                <h6 class="mb-2">
+                                    <a href="/job/<%= related.requirementid %>" class="text-dark">
+                                        <%= related.requirementname %>
+                                    </a>
+                                </h6>
+                                <p class="text-muted small mb-0">
+                                    <i class="fas fa-map-marker-alt me-1"></i><%= related.cityname %>
+                                    <span class="ms-3"><i class="fas fa-briefcase me-1"></i><%= related.requirementpositionname %></span>
+                                </p>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Apply Card -->
+                <div class="card shadow-sm mb-4 sticky-top" style="top: 20px;">
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold mb-3">Interested in this job?</h5>
+                        <button type="button" class="btn btn-primary btn-lg w-100 mb-3" data-bs-toggle="modal" data-bs-target="#applyModal">
+                            <i class="fas fa-paper-plane me-2"></i>Apply Now
+                        </button>
+                        <p class="text-muted small mb-0">
+                            <i class="fas fa-clock me-1"></i>Application deadline: 
+                            <%= moment(job.addeddate).add(30, 'days').format('MMM DD, YYYY') %>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Share Job -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">Share this Job</h6>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-outline-primary btn-sm flex-fill">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-info btn-sm flex-fill">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-success btn-sm flex-fill">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-primary btn-sm flex-fill">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Apply Modal -->
+<div class="modal fade" id="applyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Apply for <%= job.requirementname %></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="applyForm" enctype="multipart/form-data">
+                    <input type="hidden" name="requirementid" value="<%= job.requirementid %>">
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="applyjobname" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" name="applyjobemail" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Mobile <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" name="applyjobmobile" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Current Location <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="currentlocation" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Experience (Years)</label>
+                            <input type="number" class="form-control" name="expyear" min="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Experience (Months)</label>
+                            <input type="number" class="form-control" name="expmonth" min="0" max="11">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Notice Period (Days)</label>
+                            <input type="number" class="form-control" name="noticeperiod">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Current Salary (LPA)</label>
+                            <input type="text" class="form-control" name="currentsalary">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Expected Salary (LPA)</label>
+                            <input type="text" class="form-control" name="expectedsalary">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Upload Resume <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" name="resume" accept=".pdf,.doc,.docx" required>
+                        <small class="text-muted">Max 5MB. PDF, DOC, DOCX only.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Reason for Change</label>
+                        <textarea class="form-control" name="reasonforchange" rows="2"></textarea>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <small><i class="fas fa-info-circle me-1"></i>Your application will be sent directly to the employer.</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitApplication()">
+                    <i class="fas fa-paper-plane me-1"></i>Submit Application
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function submitApplication() {
+    const form = document.getElementById('applyForm');
+    const formData = new FormData(form);
+    const submitBtn = event.target;
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+    
+    try {
+        const response = await fetch('/apply', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.statusCode === 200) {
+            bootstrap.Modal.getInstance(document.getElementById('applyModal')).hide();
+            alert('Application submitted successfully!');
+            form.reset();
+        } else {
+            alert(result.msg || 'Failed to submit application');
+        }
+    } catch (error) {
+        alert('Error submitting application');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Submit Application';
+    }
+}
+</script>

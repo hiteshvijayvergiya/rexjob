@@ -525,6 +525,7 @@ const homeController = {
 
     // Privacy Policy
     privacyPolicy: (req, res) => {
+      console.log("pp")
         res.render('home/privacy-policy', {
             title: 'Privacy Policy'
         });

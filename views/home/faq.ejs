@@ -1,0 +1,340 @@
+<!-- FAQ Page -->
+<section class="page-header bg-primary text-white py-5">
+    <div class="container">
+        <h1 class="text-center mb-3">Frequently Asked Questions</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a href="/" class="text-white">Home</a></li>
+                <li class="breadcrumb-item active text-white">FAQs</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 mb-4">
+                <div class="card sticky-top" style="top: 20px;">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Categories</h5>
+                        <div class="list-group list-group-flush">
+                            <a href="#general" class="list-group-item list-group-item-action">General</a>
+                            <a href="#jobseekers" class="list-group-item list-group-item-action">For Job Seekers</a>
+                            <a href="#employers" class="list-group-item list-group-item-action">For Employers</a>
+                            <a href="#account" class="list-group-item list-group-item-action">Account & Security</a>
+                            <a href="#payment" class="list-group-item list-group-item-action">Payment</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-9">
+                <!-- General Questions -->
+                <div id="general" class="mb-5">
+                    <h2 class="fw-bold mb-4">General Questions</h2>
+                    
+                    <div class="accordion" id="accordionGeneral">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#g1">
+                                    What is <%= appName %>?
+                                </button>
+                            </h2>
+                            <div id="g1" class="accordion-collapse collapse show" data-bs-parent="#accordionGeneral">
+                                <div class="accordion-body">
+                                    <%= appName %> is a leading online job portal that connects job seekers with employers. 
+                                    We provide a platform where candidates can search and apply for jobs, and companies can 
+                                    post job openings and find qualified candidates.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#g2">
+                                    Is <%= appName %> free to use?
+                                </button>
+                            </h2>
+                            <div id="g2" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                                <div class="accordion-body">
+                                    Yes! Job seekers can register, search jobs, and apply for positions completely free of charge. 
+                                    Employers can choose from various packages based on their hiring needs.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#g3">
+                                    How do I contact <%= appName %> support?
+                                </button>
+                            </h2>
+                            <div id="g3" class="accordion-collapse collapse" data-bs-parent="#accordionGeneral">
+                                <div class="accordion-body">
+                                    You can reach us through:
+                                    <ul class="mt-2">
+                                        <li>Email: support@rexjobs.in</li>
+                                        <li>Phone: +91 1234567890</li>
+                                        <li>Contact Form: <a href="/contact">Click here</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Seekers -->
+                <div id="jobseekers" class="mb-5">
+                    <h2 class="fw-bold mb-4">For Job Seekers</h2>
+                    
+                    <div class="accordion" id="accordionJobSeekers">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#js1">
+                                    How do I create an account?
+                                </button>
+                            </h2>
+                            <div id="js1" class="accordion-collapse collapse show" data-bs-parent="#accordionJobSeekers">
+                                <div class="accordion-body">
+                                    Click on the "Sign Up" button at the top of the page, fill in your details including 
+                                    name, email, and password, then verify your email address. Once verified, you can 
+                                    start applying for jobs!
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#js2">
+                                    How do I upload my resume?
+                                </button>
+                            </h2>
+                            <div id="js2" class="accordion-collapse collapse" data-bs-parent="#accordionJobSeekers">
+                                <div class="accordion-body">
+                                    When applying for a job, you'll see an option to upload your resume. We accept PDF, 
+                                    DOC, and DOCX formats. Maximum file size is 5MB. Your resume is securely stored and 
+                                    can be reused for future applications.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#js3">
+                                    Can I apply for multiple jobs?
+                                </button>
+                            </h2>
+                            <div id="js3" class="accordion-collapse collapse" data-bs-parent="#accordionJobSeekers">
+                                <div class="accordion-body">
+                                    Yes! You can apply for as many jobs as you like. There is no limit to the number of 
+                                    applications you can submit.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#js4">
+                                    How do I track my applications?
+                                </button>
+                            </h2>
+                            <div id="js4" class="accordion-collapse collapse" data-bs-parent="#accordionJobSeekers">
+                                <div class="accordion-body">
+                                    Log in to your account and go to "My Applications" in your dashboard. You can see all 
+                                    jobs you've applied to and their current status.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#js5">
+                                    How do I set up job alerts?
+                                </button>
+                            </h2>
+                            <div id="js5" class="accordion-collapse collapse" data-bs-parent="#accordionJobSeekers">
+                                <div class="accordion-body">
+                                    Subscribe to our newsletter at the bottom of the page. You'll receive email notifications 
+                                    when new jobs matching your preferences are posted.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employers -->
+                <div id="employers" class="mb-5">
+                    <h2 class="fw-bold mb-4">For Employers</h2>
+                    
+                    <div class="accordion" id="accordionEmployers">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#e1">
+                                    How do I post a job?
+                                </button>
+                            </h2>
+                            <div id="e1" class="accordion-collapse collapse show" data-bs-parent="#accordionEmployers">
+                                <div class="accordion-body">
+                                    After creating an employer account, log in and click "Post a Job" from your dashboard. 
+                                    Fill in the job details including title, description, requirements, and salary. Your 
+                                    job will be live immediately after submission.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#e2">
+                                    How long does my job posting stay active?
+                                </button>
+                            </h2>
+                            <div id="e2" class="accordion-collapse collapse" data-bs-parent="#accordionEmployers">
+                                <div class="accordion-body">
+                                    Job postings remain active for 30 days by default. You can extend, edit, or close 
+                                    your job posting at any time from your employer dashboard.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#e3">
+                                    How do I view applications?
+                                </button>
+                            </h2>
+                            <div id="e3" class="accordion-collapse collapse" data-bs-parent="#accordionEmployers">
+                                <div class="accordion-body">
+                                    Go to your employer dashboard and click "View Applications". You can filter, sort, 
+                                    and download resumes of applicants. You'll also receive email notifications for new 
+                                    applications.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#e4">
+                                    Can I search for candidates?
+                                </button>
+                            </h2>
+                            <div id="e4" class="accordion-collapse collapse" data-bs-parent="#accordionEmployers">
+                                <div class="accordion-body">
+                                    Yes! Premium employer accounts have access to our candidate database where you can 
+                                    search for candidates based on skills, experience, and location.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account & Security -->
+                <div id="account" class="mb-5">
+                    <h2 class="fw-bold mb-4">Account & Security</h2>
+                    
+                    <div class="accordion" id="accordionAccount">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#a1">
+                                    How do I reset my password?
+                                </button>
+                            </h2>
+                            <div id="a1" class="accordion-collapse collapse show" data-bs-parent="#accordionAccount">
+                                <div class="accordion-body">
+                                    Click on "Forgot Password" on the login page. Enter your registered email address and 
+                                    you'll receive a password reset link. Click the link and set a new password.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a2">
+                                    Is my personal information safe?
+                                </button>
+                            </h2>
+                            <div id="a2" class="accordion-collapse collapse" data-bs-parent="#accordionAccount">
+                                <div class="accordion-body">
+                                    Yes! We use industry-standard encryption and security measures to protect your data. 
+                                    We never share your personal information without your consent. Read our 
+                                    <a href="/privacy-policy">Privacy Policy</a> for details.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a3">
+                                    Can I delete my account?
+                                </button>
+                            </h2>
+                            <div id="a3" class="accordion-collapse collapse" data-bs-parent="#accordionAccount">
+                                <div class="accordion-body">
+                                    Yes. Go to your account settings and click "Delete Account". Please note that this 
+                                    action is permanent and cannot be undone. All your data will be removed from our systems.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment -->
+                <div id="payment" class="mb-5">
+                    <h2 class="fw-bold mb-4">Payment & Billing</h2>
+                    
+                    <div class="accordion" id="accordionPayment">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#p1">
+                                    What payment methods do you accept?
+                                </button>
+                            </h2>
+                            <div id="p1" class="accordion-collapse collapse show" data-bs-parent="#accordionPayment">
+                                <div class="accordion-body">
+                                    We accept all major credit/debit cards (Visa, MasterCard, American Express), 
+                                    net banking, UPI, and digital wallets. All transactions are secure and encrypted.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#p2">
+                                    What is your refund policy?
+                                </button>
+                            </h2>
+                            <div id="p2" class="accordion-collapse collapse" data-bs-parent="#accordionPayment">
+                                <div class="accordion-body">
+                                    We offer a 7-day money-back guarantee. If you're not satisfied with our service, 
+                                    contact us within 7 days for a full refund. Terms and conditions apply.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Still Have Questions -->
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center p-5">
+                        <h3 class="fw-bold mb-3">Still Have Questions?</h3>
+                        <p class="mb-4">Can't find what you're looking for? Our support team is here to help!</p>
+                        <a href="/contact" class="btn btn-light btn-lg px-5">Contact Us</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.sticky-top {
+    position: sticky;
+    top: 20px;
+    z-index: 1020;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #667eea;
+    color: white;
+}
+</style>

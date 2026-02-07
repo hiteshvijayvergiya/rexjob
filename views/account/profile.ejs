@@ -1,0 +1,168 @@
+<!-- Profile Page -->
+<section class="page-header bg-primary text-white py-4">
+    <div class="container">
+        <h1 class="text-center mb-3">My Profile</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a href="/" class="text-white">Home</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard" class="text-white">Dashboard</a></li>
+                <li class="breadcrumb-item active text-white">Profile</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <% if (user.userimage) { %>
+                                <img src="<%= user.userimage %>" alt="Profile" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                            <% } else { %>
+                                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" 
+                                     style="width: 100px; height: 100px; font-size: 2.5rem;">
+                                    <%= user.fname ? user.fname.charAt(0).toUpperCase() : 'U' %>
+                                </div>
+                            <% } %>
+                        </div>
+                        <h5 class="mb-1"><%= user.fname %> <%= user.lname || '' %></h5>
+                        <p class="text-muted small mb-3"><%= user.useremail %></p>
+                        <div class="d-grid gap-2">
+                            <a href="#personalInfo" class="btn btn-outline-primary btn-sm">Personal Info</a>
+                            <a href="#changePassword" class="btn btn-outline-primary btn-sm">Change Password</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <!-- Personal Information -->
+                <div id="personalInfo" class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Personal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="/account/profile" method="POST">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="fname" value="<%= user.fname %>" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" name="lname" value="<%= user.lname || '' %>">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" value="<%= user.useremail %>" disabled>
+                                    <small class="text-muted">Email cannot be changed</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Mobile</label>
+                                    <input type="tel" class="form-control" name="mobile" value="<%= user.mobile || '' %>">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Gender</label>
+                                    <select class="form-select" name="gendar">
+                                        <option value="">Select Gender</option>
+                                        <option value="1" <%= user.gendar == 1 ? 'selected' : '' %>>Male</option>
+                                        <option value="2" <%= user.gendar == 2 ? 'selected' : '' %>>Female</option>
+                                        <option value="3" <%= user.gendar == 3 ? 'selected' : '' %>>Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Age</label>
+                                    <input type="number" class="form-control" name="age" value="<%= user.age || '' %>">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Address</label>
+                                <textarea class="form-control" name="address" rows="3"><%= user.address || '' %></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Change Password -->
+                <div id="changePassword" class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Change Password</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="changePasswordForm">
+                            <div class="mb-3">
+                                <label class="form-label">Current Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" name="currentPassword" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">New Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" name="newPassword" required minlength="6">
+                                <small class="text-muted">Minimum 6 characters</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" name="confirmPassword" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-key me-2"></i>Change Password
+                            </button>
+                        </form>
+                        <div id="passwordMsg" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const form = this;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+    const msgDiv = document.getElementById('passwordMsg');
+    
+    if (data.newPassword !== data.confirmPassword) {
+        msgDiv.innerHTML = '<div class="alert alert-danger">Passwords do not match</div>';
+        return;
+    }
+    
+    try {
+        const response = await fetch('/account/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.statusCode === 200) {
+            msgDiv.innerHTML = '<div class="alert alert-success">Password changed successfully</div>';
+            form.reset();
+        } else {
+            msgDiv.innerHTML = `<div class="alert alert-danger">${result.msg}</div>`;
+        }
+    } catch (error) {
+        msgDiv.innerHTML = '<div class="alert alert-danger">Failed to change password</div>';
+    }
+});
+</script>

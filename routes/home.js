@@ -31,8 +31,8 @@ router.get('/contact', homeController.contact);
 
 
 // Policy & Information Pages
-router.get('/privacy-policy', homeController.privacyPolicy);
-router.get('/terms-and-conditions', homeController.termsConditions);
+router.get('/privacy', homeController.privacyPolicy);
+router.get('/terms', homeController.termsConditions);
 router.get('/cookie-policy', homeController.cookiePolicy);
 router.get('/do-not-sell', homeController.doNotSell);
 router.get('/faq', homeController.faq);
