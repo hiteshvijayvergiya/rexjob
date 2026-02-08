@@ -31,6 +31,11 @@ exports.up = function(knex) {
       table.boolean('isdeleted').defaultTo(false);
       table.integer('companyid').unsigned();
       table.integer('countrycode');
+        table.string('currentlocation', 100).comment('Current city/location');
+        table.integer('expyear').comment('Experience years (legacy)');
+        table.integer('expmonth').comment('Experience months (legacy)');
+        table.decimal('currentsalary', 18, 2).comment('Current salary (correct)');
+        table.boolean('isactive').defaultTo(true).comment('Active application');
       
       // Unique constraint - prevent duplicate applications
       table.unique(['applyjobemail', 'requirementid', 'isdeleted'], 'uk_email_requirement');
@@ -95,7 +100,11 @@ exports.up = function(knex) {
       table.string('fromname', 50).comment('Referral source');
       table.text('preferredlocation');
       table.boolean('isreadytorelocate').defaultTo(false);
-      
+        table.integer('candidateexp').comment('Experience in years (legacy insert support)');
+        table.string('candidatequalification', 150);
+        table.decimal('candidatecurrentctc', 18, 2);
+        table.decimal('candidateexpectedctc', 18, 2);
+        table.boolean('isactive').defaultTo(true);
       // Performance Indexes
       table.index(['requirementtypeid', 'requirementpositionid', 'isdeleted'], 'idx_skills');
       table.index(['candidatecity', 'candidatestate', 'isdeleted'], 'idx_location');

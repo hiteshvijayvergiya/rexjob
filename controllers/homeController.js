@@ -1,422 +1,239 @@
-// controllers/homeController.js - USING STORED PROCEDURES
+// controllers/homeController.js - SIMPLE: Categories → Jobs → Apply
 
 const db = require('../config/database');
-const { uploadToS3 } = require('../config/aws');
-const { v4: uuidv4 } = require('uuid');
 const moment = require('moment');
-const multer = require('multer');
-const path = require('path');
-
-// Configure Multer
-const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 5 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {tblrequirement
-        const allowedTypes = /pdf|doc|docx/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        cb(extname ? null : new Error('Only PDF, DOC, DOCX allowed'), extname);
-    }
-});
-
-// Helper: Create SEO name
-function createSeoName(name) {
-    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-}
 
 const homeController = {
+  
+  // Homepage
+  index: async (req, res) => {
+    try {
+      const companyId = process.env.DEFAULT_COMPANY_ID || 1;
 
-    /**
-     * HOMEPAGE - Using sp_GetLatestJobs & sp_GetJobCategories
-     */
-    index: async (req, res) => {
-        try {
-            const companyId = process.env.DEFAULT_COMPANY_ID || 1;
+      // Get latest jobs
+      const jobs = await db('tblrequirement as r')
+        .join('tblrequirementtype as rt', 'r.requirementtypeid', 'rt.requirementtypeid')
+        .join('tblrequirementposition as rp', 'r.requirementpositionid', 'rp.requirementpositionid')
+        .join('tblcity as c', 'r.requirementcity', 'c.id')
+        .select(
+          'r.requirementid',
+          'r.requirementname',
+          'r.requirementdescription',
+          'r.salarystart',
+          'r.salaryend',
+          'r.expstart',
+          'r.expend',
+          'r.addeddate',
+          'rt.requirementtypename',
+          'rp.requirementpositionname',
+          'c.name as cityname'
+        )
+        .where('r.companyid', companyId)
+        .where('r.isactive', true)
+        .where(function() {
+          this.whereNull('r.isdeleted').orWhere('r.isdeleted', false);
+        })
+        .orderBy('r.addeddate', 'desc')
+        .limit(6);
 
-            // Call stored procedures
-            const [jobsResult] = await db.raw('CALL sp_GetLatestJobs(?, ?)', [companyId, 6]);
-            const [categoriesResult] = await db.raw('CALL sp_GetJobCategories(?)', [companyId]);
+      // Get parent categories (parent_id = NULL)
+      const categories = await db('tblrequirementtype as rt')
+        .leftJoin('tblrequirement as r', function() {
+          this.on('rt.requirementtypeid', 'r.requirementtypeid')
+            .andOn('r.isactive', db.raw('?', [true]))
+            .andOn(db.raw('IFNULL(r.isdeleted, 0)'), db.raw('?', [0]));
+        })
+        .select(
+          'rt.requirementtypeid',
+          'rt.requirementtypename',
+          'rt.requirementtypedescription'
+        )
+        .count('r.requirementid as jobcount')
+        .where('rt.companyid', companyId)
+        .where('rt.isactive', true)
+        .whereNull('rt.parent_id')  // PARENT CATEGORIES ONLY
+        .where(function() {
+          this.whereNull('rt.isdeleted').orWhere('rt.isdeleted', false);
+        })
+        .groupBy('rt.requirementtypeid', 'rt.requirementtypename', 'rt.requirementtypedescription')
+        .orderBy('jobcount', 'desc')
+        .limit(8);
 
-            const jobs = jobsResult[0] || [];
-            const categories = categoriesResult[0] || [];
-
-            // Add SEO names
-            jobs.forEach(job => job.categoryseoname = createSeoName(job.requirementtypename));
-            categories.forEach(cat => cat.categoryseoname = createSeoName(cat.requirementtypename));
-
-            res.render('home/index', {
-                title: 'RexJobs - Find Your Dream Job',
-                appName: 'RexJobs',
-                jobs,
-                categories,
-                moment,
-                user: req.session.user || null,
-                currentPath: req.path
-            });
-        } catch (error) {
-            console.error('Homepage error:', error);
-            res.status(500).render('error/500', {
-                title: 'Error',
-                message: error.message,
-                appName: 'RexJobs',
-                user: req.session.user || null
-            });
-        }
-    },
-
-    /**
-     * CAREER PAGE - Using sp_SearchJobs
-     */
-    career: async (req, res) => {
-        try {
-            const companyId = process.env.DEFAULT_COMPANY_ID || 1;
-            const page = parseInt(req.query.page) || 1;
-            const limit = 20;
-
-            const filters = {
-                search: req.query.search || '',
-                category: parseInt(req.query.category) || 0,
-                technology: parseInt(req.query.technology) || 0,
-                location: parseInt(req.query.location) || 0,
-                jobtype: parseInt(req.query.jobtype) || 0
-            };
-
-            // Call sp_SearchJobs
-            const [result] = await db.raw('CALL sp_SearchJobs(?, ?, ?, ?, ?, ?, ?, ?)', [
-                companyId,
-                filters.search || null,
-                filters.category,
-                filters.technology,
-                filters.location,
-                filters.jobtype,
-                page,
-                limit
-            ]);
-
-            const jobs = result[0] || [];
-            const total = result[1] ? result[1][0].total : 0;
-            const totalPages = Math.ceil(total / limit);
-
-            // Get filter dropdowns
-            const [categoriesResult] = await db.raw('CALL sp_GetJobCategories(?)', [companyId]);
-            const categories = categoriesResult[0] || [];
-
-            const locations = await db('tblcity')
-                .select('id as value', 'name as text')
-                .orderBy('name')
-                .limit(100);
-
-            res.render('home/career', {
-                title: 'Browse Jobs',
-                appName: 'RexJobs',
-                jobs,
-                categories,
-                locations,
-                filters,
-                pagination: { page, totalPages, total, limit },
-                moment,
-                user: req.session.user || null,
-                currentPath: req.path
-            });
-        } catch (error) {
-            console.error('Career error:', error);
-            res.status(500).render('error/500', { title: 'Error', message: error.message });
-        }
-    },
-
-    /**
-     * CATEGORY PAGE - Using sp_GetCategoryJobs
-     */
-    category: async (req, res) => {
-        try {
-            const seoname = req.params.seoname;
-            const companyId = process.env.DEFAULT_COMPANY_ID || 1;
-
-            // Find category by name (since we don't have seoname in table)
-            const category = await db('tblrequirementtype')
-                .where('companyid', companyId)
-                .where('isactive', 1)
-                .where(function() {
-                    this.whereNull('isdeleted').orWhere('isdeleted', 0);
-                })
-                .whereRaw('LOWER(REPLACE(REPLACE(requirementtypename, " ", "-"), "&", "and")) = ?', [seoname])
-                .first();
-
-            if (!category) {
-                return res.status(404).render('error/404', { title: 'Category Not Found' });
-            }
-
-            // Call sp_GetCategoryJobs
-            const [result] = await db.raw('CALL sp_GetCategoryJobs(?, ?)', [
-                category.requirementtypeid,
-                companyId
-            ]);
-
-            const categoryDetails = result[0] ? result[0][0] : category;
-            const jobs = result[1] || [];
-
-            res.render('home/category', {
-                title: `${categoryDetails.requirementtypename} Jobs`,
-                appName: 'RexJobs',
-                category: categoryDetails,
-                jobs,
-                moment,
-                user: req.session.user || null,
-                currentPath: req.path
-            });
-        } catch (error) {
-            console.error('Category error:', error);
-            res.status(500).render('error/500', { title: 'Error', message: error.message });
-        }
-    },
-
-    /**
-     * JOB DETAILS - Using sp_GetJobDetails
-     */
-    jobDetails: async (req, res) => {
-        try {
-            const jobId = req.params.id;
-            const companyId = process.env.DEFAULT_COMPANY_ID || 1;
-
-            // Call sp_GetJobDetails
-            const [result] = await db.raw('CALL sp_GetJobDetails(?, ?)', [jobId, companyId]);
-
-            const job = result[0] ? result[0][0] : null;
-            const relatedJobs = result[1] || [];
-
-            if (!job) {
-                return res.status(404).render('error/404', { title: 'Job Not Found' });
-            }
-
-            res.render('home/job-details', {
-                title: job.requirementname,
-                appName: 'RexJobs',
-                job,
-                relatedJobs,
-                moment,
-                user: req.session.user || null,
-                currentPath: req.path
-            });
-        } catch (error) {
-            console.error('Job details error:', error);
-            res.status(500).render('error/500', { title: 'Error', message: error.message });
-        }
-    },
-
-    /**
-     * APPLY FOR JOB - Using sp_SubmitJobApplication
-     */
-    apply: [
-        upload.single('resume'),
-        async (req, res) => {
-            try {
-                const {
-                    requirementid, applyjobname, applyjobemail, applyjobmobile,
-                    currentlocation, expyear, expmonth, currentsalary, expectedsalary,
-                    noticeperiod, reasonforchange
-                } = req.body;
-
-                // Upload resume to S3
-                let resumeUrl = null;
-                if (req.file) {
-                    resumeUrl = await uploadToS3(req.file, 'resumes');
-                }
-
-                const companyId = process.env.DEFAULT_COMPANY_ID || 1;
-
-                // Call sp_SubmitJobApplication
-                const [result] = await db.raw('CALL sp_SubmitJobApplication(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
-                    uuidv4(),
-                    requirementid,
-                    applyjobname,
-                    applyjobemail,
-                    applyjobmobile,
-                    resumeUrl,
-                    currentlocation,
-                    expyear || 0,
-                    expmonth || 0,
-                    currentsalary || null,
-                    expectedsalary || null,
-                    noticeperiod || 0,
-                    reasonforchange || null,
-                    companyId
-                ]);
-
-                const response = result[0] ? result[0][0] : {};
-
-                res.json({
-                    statusCode: 200,
-                    msg: response.message || 'Application submitted successfully!',
-                    applyjobid: response.applyjobid
-                });
-            } catch (error) {
-                console.error('Apply error:', error);
-                res.json({
-                    statusCode: 500,
-                    msg: 'Failed to submit application'
-                });
-            }
-        }
-    ],
-
-    /**
-     * NEWSLETTER - Using sp_SubscribeNewsletter
-     */
-    newsletter: async (req, res) => {
-        try {
-            const { email } = req.body;
-            const companyId = process.env.DEFAULT_COMPANY_ID || 1;
-
-            // Call sp_SubscribeNewsletter
-            const [result] = await db.raw('CALL sp_SubscribeNewsletter(?, ?, ?)', [
-                uuidv4(),
-                email,
-                companyId
-            ]);
-
-            const response = result[0] ? result[0][0] : {};
-
-            res.json({
-                statusCode: response.statuscode === 1 ? 200 : 400,
-                msg: response.message
-            });
-        } catch (error) {
-            console.error('Newsletter error:', error);
-            res.json({
-                statusCode: 500,
-                msg: 'Subscription failed'
-            });
-        }
-    },
-
-    /**
-     * CONTACT FORM - Using sp_SubmitContactQuery
-     */
-    contactSubmit: async (req, res) => {
-        try {
-            const { name, email, mobile, subject, message } = req.body;
-            const companyId = process.env.DEFAULT_COMPANY_ID || 1;
-
-            // Call sp_SubmitContactQuery
-            const [result] = await db.raw('CALL sp_SubmitContactQuery(?, ?, ?, ?, ?, ?, ?)', [
-                uuidv4(),
-                name,
-                email,
-                mobile || null,
-                subject || null,
-                message,
-                companyId
-            ]);
-
-            const response = result[0] ? result[0][0] : {};
-
-            res.json({
-                statusCode: 200,
-                msg: response.message || 'Message sent successfully!'
-            });
-        } catch (error) {
-            console.error('Contact error:', error);
-            res.json({
-                statusCode: 500,
-                msg: 'Failed to send message'
-            });
-        }
-    },
-
-    /**
-     * API: Get Technologies - Using sp_GetTechnologiesByCategory
-     */
-    getTechnologies: async (req, res) => {
-        try {
-            const categoryId = req.params.categoryId;
-            const companyId = process.env.DEFAULT_COMPANY_ID || 1;
-
-            const [result] = await db.raw('CALL sp_GetTechnologiesByCategory(?, ?)', [categoryId, companyId]);
-
-            res.json(result[0] || []);
-        } catch (error) {
-            res.json([]);
-        }
-    },
-
-    /**
-     * API: Get Locations - Using sp_GetLocationsByTechnology
-     */
-    getLocations: async (req, res) => {
-        try {
-            const technologyId = req.params.technologyId;
-            const companyId = process.env.DEFAULT_COMPANY_ID || 1;
-
-            const [result] = await db.raw('CALL sp_GetLocationsByTechnology(?, ?)', [technologyId, companyId]);
-
-            res.json(result[0] || []);
-        } catch (error) {
-            res.json([]);
-        }
-    },
-
-    // Static pages
-    about: (req, res) => {
-        res.render('home/about', {
-            title: 'About Us',
-            appName: 'RexJobs',
-            user: req.session.user || null,
-            currentPath: req.path
-        });
-    },
-
-    contact: (req, res) => {
-        res.render('home/contact', {
-            title: 'Contact Us',
-            appName: 'RexJobs',
-            user: req.session.user || null,
-            currentPath: req.path
-        });
-    },
-
-    privacyPolicy: (req, res) => {
-        res.render('home/privacy-policy', {
-            title: 'Privacy Policy',
-            appName: 'RexJobs',
-            user: req.session.user || null,
-            currentPath: req.path
-        });
-    },
-
-    termsConditions: (req, res) => {
-        res.render('home/terms-and-conditions', {
-            title: 'Terms and Conditions',
-            appName: 'RexJobs',
-            user: req.session.user || null,
-            currentPath: req.path
-        });
-    },
-
-    cookiePolicy: (req, res) => {
-        res.render('home/cookie-policy', {
-            title: 'Cookie Policy',
-            appName: 'RexJobs',
-            user: req.session.user || null,
-            currentPath: req.path
-        });
-    },
-
-    doNotSell: (req, res) => {
-        res.render('home/do-not-sell', {
-            title: 'Do Not Sell My Personal Information',
-            appName: 'RexJobs',
-            user: req.session.user || null,
-            currentPath: req.path
-        });
-    },
-
-    faq: (req, res) => {
-        res.render('home/faq', {
-            title: 'Frequently Asked Questions',
-            appName: 'RexJobs',
-            user: req.session.user || null,
-            currentPath: req.path
-        });
+      res.render('home/index', {
+        title: 'RexJobs - Find Your Dream Job',
+        jobs,
+        categories,
+        moment
+      });
+    } catch (error) {
+      console.error('Homepage error:', error);
+      res.status(500).render('error/500', { title: 'Error', message: error.message });
     }
+  },
+
+  // Categories Page - Shows PARENT categories only
+  categories: async (req, res) => {
+    try {
+      const companyId = process.env.DEFAULT_COMPANY_ID || 1;
+
+      // Get all parent categories (parent_id = NULL)
+      const categories = await db('tblrequirementtype as rt')
+        .leftJoin('tblrequirement as r', function() {
+          this.on('rt.requirementtypeid', 'r.requirementtypeid')
+            .andOn('r.isactive', db.raw('?', [true]))
+            .andOn(db.raw('IFNULL(r.isdeleted, 0)'), db.raw('?', [0]));
+        })
+        .select(
+          'rt.requirementtypeid',
+          'rt.requirementtypename',
+          'rt.requirementtypedescription'
+        )
+        .count('r.requirementid as jobcount')
+        .where('rt.companyid', companyId)
+        .where('rt.isactive', true)
+        .whereNull('rt.parent_id')  // ONLY PARENT
+        .where(function() {
+          this.whereNull('rt.isdeleted').orWhere('rt.isdeleted', false);
+        })
+        .groupBy('rt.requirementtypeid', 'rt.requirementtypename', 'rt.requirementtypedescription')
+        .orderBy('rt.requirementtypename');
+
+      res.render('home/categories', {
+        title: 'Job Categories',
+        categories,
+        moment
+      });
+    } catch (error) {
+      console.error('Categories error:', error);
+      res.status(500).render('error/500', { title: 'Error', message: error.message });
+    }
+  },
+
+  // Category Jobs - Shows JOBS in clicked category
+  categoryJobs: async (req, res) => {
+    try {
+      const categoryId = req.params.id;
+      const companyId = process.env.DEFAULT_COMPANY_ID || 1;
+
+      // Get category
+      const category = await db('tblrequirementtype')
+        .where('requirementtypeid', categoryId)
+        .where('companyid', companyId)
+        .first();
+
+      if (!category) {
+        return res.status(404).render('error/404', { title: 'Category Not Found' });
+      }
+
+      // Get ALL jobs in this category
+      const jobs = await db('tblrequirement as r')
+        .join('tblrequirementposition as rp', 'r.requirementpositionid', 'rp.requirementpositionid')
+        .join('tblcity as c', 'r.requirementcity', 'c.id')
+        .leftJoin('tblrequirementpriority as pri', 'r.requirementpriorityid', 'pri.requirementpriorityid')
+        .select(
+          'r.requirementid',
+          'r.requirementname',
+          'r.requirementdescription',
+          'r.salarystart',
+          'r.salaryend',
+          'r.expstart',
+          'r.expend',
+          'r.addeddate',
+          'rp.requirementpositionname',
+          'c.name as cityname',
+          'pri.requirementpriorityname'
+        )
+        .where('r.requirementtypeid', categoryId)
+        .where('r.companyid', companyId)
+        .where('r.isactive', true)
+        .where(function() {
+          this.whereNull('r.isdeleted').orWhere('r.isdeleted', false);
+        })
+        .orderBy('r.addeddate', 'desc');
+
+      res.render('home/category-jobs', {
+        title: `${category.requirementtypename} Jobs`,
+        category,
+        jobs,
+        moment
+      });
+    } catch (error) {
+      console.error('Category jobs error:', error);
+      res.status(500).render('error/500', { title: 'Error', message: error.message });
+    }
+  },
+
+  // Job Details
+  jobDetails: async (req, res) => {
+    try {
+      const jobId = req.params.id;
+      const companyId = process.env.DEFAULT_COMPANY_ID || 1;
+
+      const job = await db('tblrequirement as r')
+        .join('tblrequirementtype as rt', 'r.requirementtypeid', 'rt.requirementtypeid')
+        .join('tblrequirementposition as rp', 'r.requirementpositionid', 'rp.requirementpositionid')
+        .join('tblcity as c', 'r.requirementcity', 'c.id')
+        .leftJoin('tblrequirementpriority as pri', 'r.requirementpriorityid', 'pri.requirementpriorityid')
+        .select(
+          'r.*',
+          'rt.requirementtypeid',
+          'rt.requirementtypename',
+          'rp.requirementpositionname',
+          'c.name as cityname',
+          'pri.requirementpriorityname'
+        )
+        .where('r.requirementid', jobId)
+        .where('r.companyid', companyId)
+        .where('r.isactive', true)
+        .where(function() {
+          this.whereNull('r.isdeleted').orWhere('r.isdeleted', false);
+        })
+        .first();
+
+      if (!job) {
+        return res.status(404).render('error/404', { title: 'Job Not Found' });
+      }
+
+      // Get related jobs
+      const relatedJobs = await db('tblrequirement as r')
+        .join('tblrequirementposition as rp', 'r.requirementpositionid', 'rp.requirementpositionid')
+        .join('tblcity as c', 'r.requirementcity', 'c.id')
+        .select(
+          'r.requirementid',
+          'r.requirementname',
+          'rp.requirementpositionname',
+          'c.name as cityname'
+        )
+        .where('r.requirementtypeid', job.requirementtypeid)
+        .where('r.requirementid', '!=', jobId)
+        .where('r.companyid', companyId)
+        .where('r.isactive', true)
+        .where(function() {
+          this.whereNull('r.isdeleted').orWhere('r.isdeleted', false);
+        })
+        .orderBy('r.addeddate', 'desc')
+        .limit(5);
+
+      res.render('home/job-details', {
+        title: job.requirementname,
+        job,
+        relatedJobs,
+        moment
+      });
+    } catch (error) {
+      console.error('Job details error:', error);
+      res.status(500).render('error/500', { title: 'Error', message: error.message });
+    }
+  },
+
+  // Static pages
+  about: (req, res) => res.render('home/about', { title: 'About Us' }),
+  contact: (req, res) => res.render('home/contact', { title: 'Contact Us' }),
+  privacyPolicy: (req, res) => res.render('home/privacy-policy', { title: 'Privacy Policy' }),
+  termsConditions: (req, res) => res.render('home/terms-and-conditions', { title: 'Terms and Conditions' }),
+  cookiePolicy: (req, res) => res.render('home/cookie-policy', { title: 'Cookie Policy' }),
+  doNotSell: (req, res) => res.render('home/do-not-sell', { title: 'Do Not Sell My Personal Information' }),
+  faq: (req, res) => res.render('home/faq', { title: 'Frequently Asked Questions' })
 };
 
 module.exports = homeController;

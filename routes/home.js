@@ -1,4 +1,4 @@
-// routes/home.js - COMPLETE WITH ALL ROUTES
+// routes/home.js - SIMPLE ROUTES
 
 const express = require('express');
 const router = express.Router();
@@ -7,29 +7,17 @@ const homeController = require('../controllers/homeController');
 // Homepage
 router.get('/', homeController.index);
 
-// Career/Browse Jobs
-router.get('/career', homeController.career);
+// Categories page (parent categories only)
+router.get('/categories', homeController.categories);
 
-// Category Page
-router.get('/category/:seoname', homeController.category);
+// Category jobs page (jobs in clicked category)
+router.get('/category/:id/jobs', homeController.categoryJobs);
 
-// Job Details
+// Job details
 router.get('/job/:id', homeController.jobDetails);
 
-// Apply for Job
-router.post('/apply', homeController.apply);
-
-// Newsletter Subscription
-router.post('/newsletter', homeController.newsletter);
-
-// Contact Form
-router.post('/contact-submit', homeController.contactSubmit);
-
-// API Endpoints
-router.get('/api/technologies/:categoryId', homeController.getTechnologies);
-router.get('/api/locations/:technologyId', homeController.getLocations);
-
-// Static Pages
+// Static pages
+router.get('/about', homeController.about);
 router.get('/about', homeController.about);
 router.get('/contact', homeController.contact);
 router.get('/privacy-policy', homeController.privacyPolicy);

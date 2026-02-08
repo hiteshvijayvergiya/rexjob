@@ -11,6 +11,7 @@ exports.up = function(knex) {
       table.integer('companyid').unsigned();
       table.integer('clientid').unsigned();
       table.integer('requirementtypeid').unsigned().comment('Job category');
+
       table.integer('requirementpositionid').unsigned().comment('Technology/skill');
       table.string('requirementname', 50).comment('Job title');
       table.text('requirementdescription').comment('Job description');
@@ -42,6 +43,11 @@ exports.up = function(knex) {
       table.decimal('requirementpercentage', 12, 2);
       table.integer('requirementsalarykey');
       table.integer('noofrequirement').comment('Number of openings');
+        table.string('requirementseoname', 150).comment('SEO friendly job url');
+        table.text('requirementskill').comment('Required skills');
+        table.text('requirementresponsibility').comment('Job responsibilities');
+        table.text('requirementeducation').comment('Education requirement');
+        table.text('requirementdocument').comment('Required documents');
       
       // Performance Indexes
       table.index(['isactive', 'isdeleted', 'companyid', 'addeddate'], 'idx_active_jobs');

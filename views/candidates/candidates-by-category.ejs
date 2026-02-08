@@ -1,0 +1,222 @@
+<!-- home/candidates-by-category.ejs - CATEGORY-WISE CANDIDATES -->
+<div class="container py-4">
+  
+  <!-- Page Header -->
+  <div class="page-header mb-4">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h2 class="fw-bold mb-2">
+          <i class="fas fa-users me-2 text-primary"></i>
+          Candidates in <%= category.requirementtypename %>
+        </h2>
+        <p class="text-muted mb-0">
+          Browse qualified candidates in this category
+        </p>
+      </div>
+      <div class="col-md-4 text-end">
+        <a href="/candidates" class="btn btn-outline-primary">
+          <i class="fas fa-th me-2"></i>All Candidates
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Stats -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <h3 class="text-primary fw-bold mb-0"><%= candidates.length %></h3>
+          <small class="text-muted">Total Candidates</small>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <h3 class="text-success fw-bold mb-0">
+            <%= candidates.filter(c => c.candidateexp >= 5).length %>
+          </h3>
+          <small class="text-muted">Experienced (5+ Years)</small>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <h3 class="text-info fw-bold mb-0">
+            <%= candidates.filter(c => c.candidateexp >= 2 && c.candidateexp < 5).length %>
+          </h3>
+          <small class="text-muted">Mid-Level (2-5 Years)</small>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body text-center">
+          <h3 class="text-warning fw-bold mb-0">
+            <%= candidates.filter(c => c.candidateexp < 2).length %>
+          </h3>
+          <small class="text-muted">Freshers (0-2 Years)</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Candidates List -->
+  <% if (candidates && candidates.length > 0) { %>
+    <div class="row">
+      <% candidates.forEach((candidate, index) => { %>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100 shadow-sm candidate-card">
+            <div class="card-body">
+              
+              <!-- Candidate Header -->
+              <div class="d-flex align-items-start mb-3">
+                <div class="candidate-avatar me-3">
+                  <div class="avatar-circle bg-primary text-white">
+                    <%= candidate.candidatename.charAt(0).toUpperCase() %>
+                  </div>
+                </div>
+                <div class="flex-grow-1">
+                  <h5 class="card-title mb-1">
+                    <a href="/candidates/<%= candidate.candidateid %>" class="text-decoration-none text-dark">
+                      <%= candidate.candidatename %>
+                    </a>
+                  </h5>
+                  <p class="text-muted small mb-0">
+                    <i class="fas fa-briefcase me-1"></i>
+                    <%= candidate.candidateexp || 0 %> Years Experience
+                  </p>
+                </div>
+              </div>
+
+              <!-- Skills -->
+              <% if (candidate.candidateskill) { %>
+                <div class="mb-3">
+                  <label class="text-muted small fw-bold mb-1">Skills:</label>
+                  <div class="skills-tags">
+                    <% const skills = candidate.candidateskill.split(',').slice(0, 4); %>
+                    <% skills.forEach(skill => { %>
+                      <span class="badge bg-light text-dark me-1 mb-1">
+                        <%= skill.trim() %>
+                      </span>
+                    <% }); %>
+                    <% if (candidate.candidateskill.split(',').length > 4) { %>
+                      <span class="badge bg-secondary">
+                        +<%= candidate.candidateskill.split(',').length - 4 %>
+                      </span>
+                    <% } %>
+                  </div>
+                </div>
+              <% } %>
+
+              <!-- Contact Info -->
+              <div class="candidate-info">
+                <p class="small mb-1">
+                  <i class="fas fa-envelope text-primary me-2"></i>
+                  <a href="mailto:<%= candidate.candidateemail %>" class="text-muted">
+                    <%= candidate.candidateemail %>
+                  </a>
+                </p>
+                <p class="small mb-1">
+                  <i class="fas fa-phone text-success me-2"></i>
+                  <a href="tel:<%= candidate.candidatemobile %>" class="text-muted">
+                    <%= candidate.candidatemobile %>
+                  </a>
+                </p>
+                <% if (candidate.cityname) { %>
+                  <p class="small mb-0">
+                    <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                    <span class="text-muted"><%= candidate.cityname %></span>
+                  </p>
+                <% } %>
+              </div>
+
+            </div>
+            
+            <!-- Card Footer -->
+            <div class="card-footer bg-light">
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                  <i class="far fa-calendar me-1"></i>
+                  Added <%= moment(candidate.addeddate).fromNow() %>
+                </small>
+                <a href="/candidates/<%= candidate.candidateid %>" class="btn btn-sm btn-primary">
+                  View Profile
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <!-- Empty State -->
+    <div class="card shadow-sm">
+      <div class="card-body text-center py-5">
+        <i class="fas fa-users fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">No Candidates Found</h4>
+        <p class="text-muted mb-4">
+          There are no candidates in the <%= category.requirementtypename %> category yet.
+        </p>
+        <a href="/candidates/create" class="btn btn-primary">
+          <i class="fas fa-plus me-2"></i>Add New Candidate
+        </a>
+      </div>
+    </div>
+  <% } %>
+
+</div>
+
+<style>
+.candidate-card {
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.candidate-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  border-color: #667eea;
+}
+
+.avatar-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.skills-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.skills-tags .badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.candidate-info a {
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.candidate-info a:hover {
+  color: #667eea !important;
+}
+
+.page-header {
+  padding: 2rem 0;
+  border-bottom: 2px solid #e2e8f0;
+}
+</style>

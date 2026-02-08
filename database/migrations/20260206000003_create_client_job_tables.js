@@ -52,6 +52,9 @@ exports.up = function(knex) {
       table.boolean('isactive').defaultTo(true);
       table.boolean('isdeleted').defaultTo(false);
       table.integer('countrycode');
+      table.integer('clientcity').comment('City (legacy / insert compatibility)');
+      table.integer('clientstate').comment('State (legacy / insert compatibility)');
+      table.integer('clientcountry').comment('Country (legacy / insert compatibility)');
       
       // Indexes
       table.index(['companyid', 'isactive', 'isdeleted']);
@@ -118,6 +121,7 @@ exports.up = function(knex) {
       table.string('requirementtypename', 50);
       table.string('requirementtypedescription', 500);
       table.string('requirementtypeimage', 1000);
+        table.string('requirementtypeseoname', 500);
       table.datetime('addeddate');
       table.datetime('updateddate');
       table.datetime('deleteddate');

@@ -203,7 +203,19 @@ exports.up = function(knex) {
       table.datetime('ExpiryDate');
       table.boolean('IsActive').defaultTo(true);
       table.integer('CompanyId').unsigned();
-      
+        table.string('JobIcon', 500);
+        table.string('JobSeoUrl', 300);
+        table.uuid('ParentUUID');
+        table.datetime('AddedDate');
+        table.integer('AddedBy');
+        table.datetime('UpdatedDate');
+        table.integer('UpdatedBy');
+        table.datetime('DeletedDate');
+        table.integer('DeletedBy');
+        table.string('SeoJobKeyword', 500);
+        table.string('SeoJobDescription', 500);
+        table.string('OgDescriptionSeo', 500);
+        table.string('SeoOgTitle', 300);
       // Indexes
       table.index(['CompanyId', 'IsActive', 'PostedDate']);
       table.index(['ExpiryDate', 'IsActive']);
