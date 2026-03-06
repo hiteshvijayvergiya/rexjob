@@ -51,7 +51,6 @@ const homeController = {
         .count('r.requirementid as jobcount')
         .where('rt.companyid', companyId)
         .where('rt.isactive', true)
-        .whereNull('rt.parent_id')  // PARENT CATEGORIES ONLY
         .where(function() {
           this.whereNull('rt.isdeleted').orWhere('rt.isdeleted', false);
         })
@@ -91,7 +90,6 @@ const homeController = {
         .count('r.requirementid as jobcount')
         .where('rt.companyid', companyId)
         .where('rt.isactive', true)
-        .whereNull('rt.parent_id')  // ONLY PARENT
         .where(function() {
           this.whereNull('rt.isdeleted').orWhere('rt.isdeleted', false);
         })

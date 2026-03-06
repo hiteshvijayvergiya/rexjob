@@ -25,6 +25,7 @@ const candidatesController = {
   
   // Show Apply Form
   applyForm: async (req, res) => {
+    console.log("f")
     try {
       const jobId = req.params.jobId;
       const companyId = process.env.DEFAULT_COMPANY_ID || 1;
@@ -54,8 +55,8 @@ const candidatesController = {
       if (!job) {
         return res.status(404).render('error/404', { title: 'Job Not Found' });
       }
-
-      res.render('candidates/apply', {
+    console.log("sdfdf")
+      res.render('candidates/create', {
         title: `Apply for ${job.requirementname}`,
         job
       });
@@ -172,6 +173,7 @@ const candidatesController = {
 
   // Thank You Page
   thankYou: (req, res) => {
+      console.log("f")
     res.render('candidates/thank-you', {
       title: 'Application Submitted'
     });

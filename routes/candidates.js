@@ -5,7 +5,7 @@ const router = express.Router();
 const candidatesController = require('../controllers/candidatesController');
 
 // Apply form
-router.get('/apply/:jobId', candidatesController.applyForm);
+router.get('/apply', candidatesController.applyForm);
 
 // Submit application
 router.post('/submit', candidatesController.submitApplication);

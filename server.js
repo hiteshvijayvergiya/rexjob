@@ -43,6 +43,27 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+
+// Explicit route for ads.txt
+app.get('/ads.txt', (req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
+    res.sendFile(path.join(__dirname, 'public', 'ads.txt'));
+});
+
+// Google verification file
+app.get('/google65d3efce2181b5c2.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'google65d3efce2181b5c2.html'));
+});
+
+// Bonus: robots.txt for SEO
+app.get('/robots.txt', (req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
+    res.send(`User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /account`);
+});
+
 // Static Files
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
