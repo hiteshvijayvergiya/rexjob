@@ -1,0 +1,50 @@
+<!-- This file: views/front/job-detail.ejs -->
+<div class="container mt-4 mb-5">
+  <!-- Breadcrumb -->
+  <nav class="mb-3"><ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <% for (const b of breadcrumb) { %>
+    <li class="breadcrumb-item"><a href="/jobs/category/<%= b.categoryid %>"><%= b.categoryname %></a></li>
+    <% } %>
+    <li class="breadcrumb-item active"><%= job.jobtitle %></li>
+  </ol></nav>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="form-card mb-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <h3 class="fw-bold mb-1"><%= job.jobtitle %></h3>
+            <div class="text-muted">
+              <% if (job.categoryname) { %><i class="fas fa-folder me-1"></i><%= job.categoryname %> &nbsp;<% } %>
+              <% if (job.cityname) { %><i class="fas fa-map-marker-alt me-1"></i><%= job.cityname %><% } %>
+            </div>
+          </div>
+          <span class="badge" style="background:#eff6ff;color:#1d4ed8;font-size:.8rem"><%= jobTypeMap[job.jobtype]||'Full-time' %></span>
+        </div>
+
+        <div class="row g-3 mb-4 p-3 rounded-3" style="background:#f8fafc">
+          <% if (job.expstart||job.expend) { %><div class="col-6 col-md-3"><div class="text-muted small">Experience</div><div class="fw-semibold"><%= job.expstart %>–<%= job.expend %> yrs</div></div><% } %>
+          <% if (job.salarystart||job.salaryend) { %><div class="col-6 col-md-3"><div class="text-muted small">Salary</div><div class="fw-semibold">₹<%= Number(job.salarystart||0).toLocaleString() %> – ₹<%= Number(job.salaryend||0).toLocaleString() %></div></div><% } %>
+          <% if (job.noofopenings) { %><div class="col-6 col-md-3"><div class="text-muted small">Openings</div><div class="fw-semibold"><%= job.noofopenings %></div></div><% } %>
+          <% if (job.jobend) { %><div class="col-6 col-md-3"><div class="text-muted small">Deadline</div><div class="fw-semibold"><%= new Date(job.jobend).toLocaleDateString() %></div></div><% } %>
+        </div>
+
+        <% if (job.jobdescription) { %><h6 class="fw-bold">Description</h6><p class="text-secondary"><%= job.jobdescription %></p><% } %>
+        <% if (job.jobskills) { %><h6 class="fw-bold mt-3">Required Skills</h6><p class="text-secondary"><%= job.jobskills %></p><% } %>
+        <% if (job.jobresponsibility) { %><h6 class="fw-bold mt-3">Responsibilities</h6><p class="text-secondary"><%= job.jobresponsibility %></p><% } %>
+        <% if (job.jobeducation) { %><h6 class="fw-bold mt-3">Education</h6><p class="text-secondary"><%= job.jobeducation %></p><% } %>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="form-card position-sticky" style="top:80px">
+        <h6 class="fw-bold mb-3">Apply for this Job</h6>
+        <a href="/apply?job=<%= job.jobid %>" class="btn btn-primary btn-lg w-100 mb-3">
+          <i class="fas fa-paper-plane me-2"></i>Apply Now
+        </a>
+        <div class="text-muted small text-center">Posted <%= moment(job.addeddate).fromNow() %></div>
+      </div>
+    </div>
+  </div>
+</div>

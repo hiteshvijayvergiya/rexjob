@@ -1,31 +1,29 @@
-// controllers/accountController.js - Authentication Controller
+// controllers/accountController.js
 const db = require('../config/database');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
+const moment = require('moment');
 
 const accountController = {
-  // Login page
+
   loginPage: (req, res) => {
     if (req.session.user) {
-      return res.redirect('/dashboard');
+      const u = req.session.user;
+      if (u.isadmin || u.issuperadmin) return res.redirect('/admin/dashboard');
+      if (u.usertypeid === 3) return res.redirect('/employer/dashboard');
+      return res.redirect('/user/dashboard');
     }
-    res.render('account/login', {
-      title: 'Login',
-      layout: 'layouts/auth'
-    });
+    res.render('account/login', { title: 'Login', layout: 'layouts/auth' });
   },
 
-  // Login submit
   login: async (req, res) => {
     try {
-      const { email, password, rememberme } = req.body;
+      const { email, password } = req.body;
 
-      // Find user
+      // Find user by email only — no companyid filter so admin always works
       const user = await db('tbluser')
-        .where('useremail', email)
-        .where('isactive', true)
-        .whereNull('isdeleted')
-        .orWhere('isdeleted', false)
+        .where('useremail', email.trim().toLowerCase())
+        .where('isactive', 1)
         .first();
 
       if (!user) {
@@ -33,311 +31,193 @@ const accountController = {
         return res.redirect('/account/login');
       }
 
-      // Verify password
       const isMatch = await bcrypt.compare(password, user.userpassword);
       if (!isMatch) {
         req.flash('error_msg', 'Invalid email or password');
         return res.redirect('/account/login');
       }
 
-      // Create session
+      // Store session
       req.session.user = {
         userid: user.userid,
-        username: user.username,
         fname: user.fname,
         lname: user.lname,
         useremail: user.useremail,
-        isadmin: user.isadmin,
-        issuperadmin: user.issuperadmin,
+        isadmin: !!user.isadmin,
+        issuperadmin: !!user.issuperadmin,
         usertypeid: user.usertypeid,
         companyid: user.companyid
       };
 
-      req.session.companyId = user.companyid;
+      // Update login timestamp (ignore errors)
+      await db('tbluser').where('userid', user.userid)
+        .update({ islogin: 1, logindate: new Date() }).catch(() => {});
 
-      // Update login status
-      await db('tbluser')
-        .where('userid', user.userid)
-        .update({
-          islogin: true,
-          logindate: new Date(),
-          isrememberme: rememberme ? true : false
-        });
+      req.flash('success_msg', `Welcome back, ${user.fname}!`);
 
-      // Log activity
-      await db('ActivityLog').insert({
-        ActivityLog: 'User logged in',
-        UserId: user.userid,
-        CreatedDate: new Date(),
-        companyid: user.companyid
-      });
+      // Route by role
+      if (user.isadmin || user.issuperadmin) {
+        return res.redirect('/admin/dashboard');
+      } else if (user.usertypeid === 3) {
+        return res.redirect('/employer/dashboard');
+      }
+      return res.redirect('/user/dashboard');
 
-      req.flash('success_msg', 'Login successful!');
-      res.redirect('/dashboard');
-    } catch (error) {
-      console.error('Login error:', error);
-      req.flash('error_msg', 'Login failed. Please try again.');
+    } catch (err) {
+      console.error('Login error:', err);
+      req.flash('error_msg', 'Login failed: ' + err.message);
       res.redirect('/account/login');
     }
   },
 
-  // Logout
   logout: async (req, res) => {
-    try {
-      if (req.session.user) {
-        // Update logout time
-        await db('tbluser')
-          .where('userid', req.session.user.userid)
-          .update({
-            islogin: false,
-            logoutdate: new Date()
-          });
-
-        // Log activity
-        await db('ActivityLog').insert({
-          ActivityLog: 'User logged out',
-          UserId: req.session.user.userid,
-          CreatedDate: new Date(),
-          companyid: req.session.companyId
-        });
-      }
-
-      req.session.destroy();
-      req.flash('success_msg', 'Logged out successfully');
-      res.redirect('/');
-    } catch (error) {
-      console.error('Logout error:', error);
-      res.redirect('/');
+    if (req.session.user) {
+      await db('tbluser').where('userid', req.session.user.userid)
+        .update({ islogin: 0, logoutdate: new Date() }).catch(() => {});
     }
+    req.session.destroy();
+    res.redirect('/');
   },
 
-  // Signup page
   signupPage: (req, res) => {
-    res.render('account/signup', {
-      title: 'Sign Up',
-      layout: 'layouts/auth'
-    });
+    if (req.session.user) return res.redirect('/');
+    res.render('account/signup', { title: 'Register', layout: 'layouts/auth' });
   },
 
-  // Signup submit
   signup: async (req, res) => {
     try {
-      const { fname, lname, email, password, password2, mobile } = req.body;
+      const { fname, lname, email, password, password2, mobile, role } = req.body;
+      const companyId = parseInt(process.env.DEFAULT_COMPANY_ID) || 1;
 
-      // Validation
       if (password !== password2) {
         req.flash('error_msg', 'Passwords do not match');
         return res.redirect('/account/signup');
       }
 
-      // Check if user exists
-      const existingUser = await db('tbluser')
-        .where('useremail', email)
-        .whereNull('isdeleted')
-        .orWhere('isdeleted', false)
-        .first();
+      if (password.length < 6) {
+        req.flash('error_msg', 'Password must be at least 6 characters');
+        return res.redirect('/account/signup');
+      }
 
-      if (existingUser) {
+      // Check duplicate email
+      const exists = await db('tbluser')
+        .where('useremail', email.trim().toLowerCase())
+        .first();
+      if (exists) {
         req.flash('error_msg', 'Email already registered');
         return res.redirect('/account/signup');
       }
 
-      // Hash password
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashed = await bcrypt.hash(password, 10);
+      const usertypeid = role === '3' ? 3 : 4; // 3=employer, 4=candidate
 
-      // Insert user
-      const [userId] = await db('tbluser').insert({
+      await db('tbluser').insert({
         uuid: uuidv4(),
-        fname: fname,
-        lname: lname,
-        useremail: email,
-        userpassword: hashedPassword,
-        mobile: mobile,
-        usertypeid: 2, // Default user type
-        companyid: process.env.DEFAULT_COMPANY_ID || 1,
-        isactive: true,
-        issignup: true,
+        fname: fname.trim(),
+        lname: lname.trim(),
+        useremail: email.trim().toLowerCase(),
+        userpassword: hashed,
+        mobile: mobile || null,
+        usertypeid,
+        
+        isadmin: 0,
+        issuperadmin: 0,
+        isactive: 1,
+        issignup: 1,
+        islogin: 0,
         signupdate: new Date(),
         addeddate: new Date(),
-        isdeleted: false
+        isdeleted: 0
       });
 
-      req.flash('success_msg', 'Registration successful! Please login.');
+      req.flash('success_msg', 'Account created! Please login.');
       res.redirect('/account/login');
-    } catch (error) {
-      console.error('Signup error:', error);
-      req.flash('error_msg', 'Registration failed. Please try again.');
+    } catch (err) {
+      console.error('Signup error:', err);
+      req.flash('error_msg', 'Registration failed: ' + err.message);
       res.redirect('/account/signup');
     }
   },
 
-  // Forgot password page
-  forgotPasswordPage: (req, res) => {
-    res.render('account/forgot-password', {
-      title: 'Forgot Password',
-      layout: 'layouts/auth'
-    });
-  },
+  forgotPasswordPage: (req, res) => res.render('account/forgot-password', { title: 'Forgot Password', layout: 'layouts/auth' }),
 
-  // Forgot password submit
   forgotPassword: async (req, res) => {
     try {
       const { email } = req.body;
+      const user = await db('tbluser').where('useremail', email).where('isactive', true).first();
+      if (!user) { req.flash('error_msg', 'Email not found'); return res.redirect('/account/forgot-password'); }
 
-      const user = await db('tbluser')
-        .where('useremail', email)
-        .where('isactive', true)
-        .whereNull('isdeleted')
-        .first();
-
-      if (!user) {
-        req.flash('error_msg', 'Email not found');
-        return res.redirect('/account/forgot-password');
-      }
-
-      // Generate reset token
       const token = uuidv4();
-      const expiryDate = new Date(Date.now() + 3600000); // 1 hour
-
       await db('tblforgotpassword').insert({
-        uuid: uuidv4(),
-        userid: user.userid,
-        token: token,
-        expirydate: expiryDate,
-        isused: false,
-        addeddate: new Date()
+        uuid: uuidv4(), userid: user.userid, token,
+        expirydate: new Date(Date.now() + 3600000), isused: false, addeddate: new Date()
       });
-
-      // TODO: Send email with reset link
-      // const resetLink = `${process.env.BASE_URL}/account/reset-password/${token}`;
-
-      req.flash('success_msg', 'Password reset link sent to your email');
+      // TODO: send email
+      req.flash('success_msg', 'Reset link sent (check console): /account/reset-password/' + token);
       res.redirect('/account/login');
-    } catch (error) {
-      console.error('Forgot password error:', error);
-      req.flash('error_msg', 'Failed to process request');
-      res.redirect('/account/forgot-password');
+    } catch (err) {
+      req.flash('error_msg', 'Failed'); res.redirect('/account/forgot-password');
     }
   },
 
-  // Reset password page
   resetPasswordPage: async (req, res) => {
-    try {
-      const { token } = req.params;
-
-      const resetRecord = await db('tblforgotpassword')
-        .where('token', token)
-        .where('isused', false)
-        .where('expirydate', '>', new Date())
-        .first();
-
-      if (!resetRecord) {
-        req.flash('error_msg', 'Invalid or expired reset link');
-        return res.redirect('/account/login');
-      }
-
-      res.render('account/reset-password', {
-        title: 'Reset Password',
-        token: token,
-        layout: 'layouts/auth'
-      });
-    } catch (error) {
-      console.error('Reset password page error:', error);
-      res.redirect('/account/login');
-    }
+    const rec = await db('tblforgotpassword').where('token', req.params.token)
+      .where('isused', false).where('expirydate', '>', new Date()).first();
+    if (!rec) { req.flash('error_msg', 'Expired link'); return res.redirect('/account/login'); }
+    res.render('account/reset-password', { title: 'Reset Password', token: req.params.token, layout: 'layouts/auth' });
   },
 
-  // Reset password submit
   resetPassword: async (req, res) => {
     try {
       const { token, password, password2 } = req.body;
-
-      if (password !== password2) {
-        req.flash('error_msg', 'Passwords do not match');
-        return res.redirect(`/account/reset-password/${token}`);
-      }
-
-      const resetRecord = await db('tblforgotpassword')
-        .where('token', token)
-        .where('isused', false)
-        .where('expirydate', '>', new Date())
-        .first();
-
-      if (!resetRecord) {
-        req.flash('error_msg', 'Invalid or expired reset link');
-        return res.redirect('/account/login');
-      }
-
-      // Hash new password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Update user password
-      await db('tbluser')
-        .where('userid', resetRecord.userid)
-        .update({
-          userpassword: hashedPassword,
-          updateddate: new Date()
-        });
-
-      // Mark token as used
-      await db('tblforgotpassword')
-        .where('forgotpasswordid', resetRecord.forgotpasswordid)
-        .update({
-          isused: true,
-          useddate: new Date()
-        });
-
-      req.flash('success_msg', 'Password reset successful! Please login.');
-      res.redirect('/account/login');
-    } catch (error) {
-      console.error('Reset password error:', error);
-      req.flash('error_msg', 'Failed to reset password');
-      res.redirect('/account/login');
+      if (password !== password2) { req.flash('error_msg', 'Passwords do not match'); return res.redirect(`/account/reset-password/${token}`); }
+      const rec = await db('tblforgotpassword').where('token', token).where('isused', false).where('expirydate', '>', new Date()).first();
+      if (!rec) { req.flash('error_msg', 'Expired link'); return res.redirect('/account/login'); }
+      await db('tbluser').where('userid', rec.userid).update({ userpassword: await bcrypt.hash(password, 10), updateddate: new Date() });
+      await db('tblforgotpassword').where('forgotpasswordid', rec.forgotpasswordid).update({ isused: true, useddate: new Date() });
+      req.flash('success_msg', 'Password reset!'); res.redirect('/account/login');
+    } catch (err) {
+      req.flash('error_msg', 'Failed'); res.redirect('/account/login');
     }
   },
 
-  // Profile page
   profilePage: async (req, res) => {
     try {
-      const user = await db('tbluser')
-        .where('userid', req.session.user.userid)
-        .first();
+      if (!req.session.user) return res.redirect('/account/login');
+      const user = await db('tbluser').where('userid', req.session.user.userid).first();
+      const candidate = await db('tblcandidate')
 
-      res.render('account/profile', {
-        title: 'My Profile',
-        user: user
-      });
-    } catch (error) {
-      console.error('Profile page error:', error);
-      res.redirect('/dashboard');
+      let myJobs = [];
+      if (user.usertypeid === 3 || user.isadmin) {
+        myJobs = await db('tbljobpost as j')
+          .leftJoin('tbljobcategory as c', 'c.categoryid', 'j.categoryid')
+          .leftJoin('tbljobapplication as a', 'j.jobid', 'a.jobid')
+          .select('j.jobid', 'j.jobtitle', 'j.approvalstatus', 'j.isactive', 'j.addeddate',
+                  'c.categoryname', db.raw('COUNT(a.applicationid) as appcount'))
+          .where('j.postedby', user.userid).where('j.isdeleted', 0)
+          .groupBy('j.jobid', 'j.jobtitle', 'j.approvalstatus', 'j.isactive', 'j.addeddate', 'c.categoryname')
+          .orderBy('j.addeddate', 'desc').catch(() => []);
+      }
+
+      const approvalLabels = { 0: 'Pending', 1: 'Approved', 2: 'Rejected' };
+      res.render('account/profile', { title: 'My Profile', user, candidate, myJobs, approvalLabels, moment });
+    } catch (err) {
+      console.error('Profile error:', err);
+      res.status(500).render('error/500', { title: 'Error', message: err.message });
     }
   },
 
-  // Update profile
   updateProfile: async (req, res) => {
     try {
-      const { fname, lname, mobile, address } = req.body;
-
-      await db('tbluser')
-        .where('userid', req.session.user.userid)
-        .update({
-          fname: fname,
-          lname: lname,
-          mobile: mobile,
-          address: address,
-          updateddate: new Date()
-        });
-
-      // Update session
+      const { fname, lname, mobile } = req.body;
+      await db('tbluser').where('userid', req.session.user.userid)
+        .update({ fname, lname, mobile, updateddate: new Date() });
       req.session.user.fname = fname;
       req.session.user.lname = lname;
-
-      req.flash('success_msg', 'Profile updated successfully');
+      req.flash('success_msg', 'Profile updated!');
       res.redirect('/account/profile');
-    } catch (error) {
-      console.error('Update profile error:', error);
-      req.flash('error_msg', 'Failed to update profile');
-      res.redirect('/account/profile');
+    } catch (err) {
+      req.flash('error_msg', 'Failed'); res.redirect('/account/profile');
     }
   }
 };

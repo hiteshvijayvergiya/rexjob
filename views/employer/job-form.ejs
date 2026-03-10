@@ -1,0 +1,157 @@
+<div class="container mt-4 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/employer/dashboard" class="btn btn-outline-secondary btn-sm">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+          <h4 class="fw-bold mb-0"><%= title %></h4>
+          <p class="text-muted small mb-0">
+            <% if (job && job.approvalstatus == 2) { %>
+              <span class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>Previously rejected — fix and resubmit for approval</span>
+            <% } else if (job) { %>
+              Editing this job will reset it to <strong>Pending</strong> for re-approval
+            <% } else { %>
+              Your job will be reviewed by admin before going live
+            <% } %>
+          </p>
+        </div>
+      </div>
+
+      <% if (job && job.approvalstatus == 2 && job.rejectionreason) { %>
+      <div class="alert alert-danger mb-4">
+        <i class="fas fa-times-circle me-2"></i>
+        <strong>Rejection Reason:</strong> <%= job.rejectionreason %>
+      </div>
+      <% } %>
+
+      <div class="form-card">
+        <form method="POST"
+              action="<%= job ? '/employer/jobs/' + job.jobid + '/update' : '/employer/jobs/store' %>">
+
+          <div class="row g-3">
+
+            <div class="col-12">
+              <label class="form-label">Job Title <span class="text-danger">*</span></label>
+              <input type="text" name="jobtitle" class="form-control" required
+                     value="<%= job ? job.jobtitle : '' %>"
+                     placeholder="e.g. Senior React Developer">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Category</label>
+              <select name="categoryid" class="form-select">
+                <option value="">— Select Category —</option>
+                <%
+                  function renderCatOpts(items, selectedId) {
+                    let html = '';
+                    function recurse(pid, depth) {
+                      const kids = items.filter(i => pid === null ? !i.parent_id : String(i.parent_id)===String(pid));
+                      for (const n of kids) {
+                        const indent = '\u00A0\u00A0\u00A0'.repeat(depth);
+                        const sel = (selectedId && String(n.categoryid)===String(selectedId)) ? 'selected' : '';
+                        html += `<option value="${n.categoryid}" ${sel}>${indent}${depth>0?'└ ':''}${n.categoryname}</option>`;
+                        recurse(n.categoryid, depth + 1);
+                      }
+                    }
+                    recurse(null, 0);
+                    return html;
+                  }
+                %>
+                <%- renderCatOpts(flat, job ? job.categoryid : null) %>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Job Type</label>
+              <select name="jobtype" class="form-select">
+                <option value="1" <%= !job||job.jobtype==1?'selected':'' %>>Full-time</option>
+                <option value="2" <%= job&&job.jobtype==2?'selected':'' %>>Part-time</option>
+                <option value="3" <%= job&&job.jobtype==3?'selected':'' %>>Contract</option>
+                <option value="4" <%= job&&job.jobtype==4?'selected':'' %>>Internship</option>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">City</label>
+              <select name="jobcity" class="form-select">
+                <option value="">— Select City —</option>
+                <% for (const c of cities) { %>
+                <option value="<%= c.id %>" <%= job&&String(job.jobcity)===String(c.id)?'selected':'' %>><%= c.name %></option>
+                <% } %>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Openings</label>
+              <input type="number" name="noofopenings" class="form-control" min="1"
+                     value="<%= job ? (job.noofopenings||1) : 1 %>">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Min Exp (yrs)</label>
+              <input type="number" name="expstart" class="form-control" step="0.5" min="0"
+                     value="<%= job ? (job.expstart||'') : '' %>" placeholder="0">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Max Exp (yrs)</label>
+              <input type="number" name="expend" class="form-control" step="0.5" min="0"
+                     value="<%= job ? (job.expend||'') : '' %>" placeholder="5">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Min Salary (LPA)</label>
+              <input type="number" name="salarystart" class="form-control"
+                     value="<%= job ? (job.salarystart||'') : '' %>" placeholder="0">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Max Salary (LPA)</label>
+              <input type="number" name="salaryend" class="form-control"
+                     value="<%= job ? (job.salaryend||'') : '' %>" placeholder="0">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Application Deadline</label>
+              <input type="date" name="jobend" class="form-control"
+                     value="<%= job&&job.jobend ? new Date(job.jobend).toISOString().split('T')[0] : '' %>">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Job Description</label>
+              <textarea name="jobdescription" class="form-control" rows="5"
+                placeholder="Describe the role, company, team..."><%= job ? (job.jobdescription||'') : '' %></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Required Skills</label>
+              <textarea name="jobskills" class="form-control" rows="3"
+                placeholder="React, Node.js, MySQL..."><%= job ? (job.jobskills||'') : '' %></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Responsibilities</label>
+              <textarea name="jobresponsibility" class="form-control" rows="3"
+                placeholder="Key responsibilities..."><%= job ? (job.jobresponsibility||'') : '' %></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Education Requirements</label>
+              <textarea name="jobeducation" class="form-control" rows="2"
+                placeholder="B.Tech, MBA..."><%= job ? (job.jobeducation||'') : '' %></textarea>
+            </div>
+
+            <div class="col-12">
+              <div class="alert alert-info mb-0 py-2 small">
+                <i class="fas fa-info-circle me-2"></i>
+                <%= job ? 'Any changes will reset this job to <strong>Pending</strong> and require admin re-approval before going live.' : 'Your job will be <strong>reviewed by admin</strong> before it appears on the site.' %>
+              </div>
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+              <button type="submit" class="btn btn-primary px-5">
+                <i class="fas fa-paper-plane me-2"></i><%= job ? 'Update & Resubmit' : 'Submit for Approval' %>
+              </button>
+              <a href="/employer/dashboard" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

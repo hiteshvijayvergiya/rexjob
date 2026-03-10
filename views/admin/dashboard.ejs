@@ -1,0 +1,146 @@
+<div class="admin-wrapper">
+  <%- include('../partials/adminsidebar') %>
+  <div class="admin-content">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h4 class="fw-bold mb-0">Dashboard</h4>
+        <p class="text-muted small mb-0">Welcome back, <strong><%= user.fname %></strong>!</p>
+      </div>
+      <div class="btn-group">
+        <a href="/admin/dashboard?range=today"   class="btn btn-sm <%= range==='today'   ?'btn-primary':'btn-outline-secondary' %>">Today</a>
+        <a href="/admin/dashboard?range=weekly"  class="btn btn-sm <%= range==='weekly'  ?'btn-primary':'btn-outline-secondary' %>">Weekly</a>
+        <a href="/admin/dashboard?range=monthly" class="btn btn-sm <%= range==='monthly' ?'btn-primary':'btn-outline-secondary' %>">Monthly</a>
+      </div>
+    </div>
+
+    <% if (stats.pendingApproval > 0) { %>
+    <div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
+      <i class="fas fa-clock"></i>
+      <span><strong><%= stats.pendingApproval %></strong> job(s) waiting for approval.
+        <a href="/admin/jobs?status=0" class="fw-semibold">Review now →</a>
+      </span>
+    </div>
+    <% } %>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card card p-3 h-100">
+          <div class="stat-icon mb-2" style="background:#dbeafe"><i class="fas fa-briefcase text-primary"></i></div>
+          <div class="fw-bold fs-3"><%= stats.jobTotal %></div>
+          <div class="text-muted small">Total Jobs</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card card p-3 h-100">
+          <div class="stat-icon mb-2" style="background:#fef3c7"><i class="fas fa-clock text-warning"></i></div>
+          <div class="fw-bold fs-3 text-warning"><%= stats.pendingApproval %></div>
+          <div class="text-muted small">Pending</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card card p-3 h-100">
+          <div class="stat-icon mb-2" style="background:#d1fae5"><i class="fas fa-plus-circle text-success"></i></div>
+          <div class="fw-bold fs-3 text-success"><%= stats.jobRange %></div>
+          <div class="text-muted small">New (period)</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card card p-3 h-100">
+          <div class="stat-icon mb-2" style="background:#ede9fe"><i class="fas fa-file-alt" style="color:#7c3aed"></i></div>
+          <div class="fw-bold fs-3" style="color:#7c3aed"><%= stats.appTotal %></div>
+          <div class="text-muted small">Total Apps</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card card p-3 h-100">
+          <div class="stat-icon mb-2" style="background:#fce7f3"><i class="fas fa-paper-plane" style="color:#db2777"></i></div>
+          <div class="fw-bold fs-3" style="color:#db2777"><%= stats.appRange %></div>
+          <div class="text-muted small">Apps (period)</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card card p-3 h-100">
+          <div class="stat-icon mb-2" style="background:#cffafe"><i class="fas fa-users text-info"></i></div>
+          <div class="fw-bold fs-3 text-info"><%= stats.candTotal %></div>
+          <div class="text-muted small">Candidates</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Recent Applications -->
+      <div class="col-lg-7">
+        <div class="admin-table">
+          <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold mb-0"><i class="fas fa-file-alt me-2 text-primary"></i>Recent Applications</h6>
+            <a href="/admin/applications" class="btn btn-outline-primary btn-sm">View All</a>
+          </div>
+          <% if (recentApps.length) { %>
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead><tr><th>Applicant</th><th>Job</th><th>Date</th><th>Status</th></tr></thead>
+              <tbody>
+                <% const sLabel=['New','Shortlisted','Interview','Offered','Rejected','Withdrawn']; %>
+                <% const sBadge=['secondary','success','info','primary','danger','warning']; %>
+                <% for (const a of recentApps) { %>
+                <tr>
+                  <td>
+                    <a href="/admin/applications/<%= a.applicationid %>" class="fw-semibold text-dark text-decoration-none"><%= a.fullname %></a>
+                    <div class="text-muted" style="font-size:.78rem"><%= a.email %></div>
+                  </td>
+                  <td class="small"><%= a.jobtitle %></td>
+                  <td class="text-muted small"><%= moment(a.addeddate).format('DD MMM') %></td>
+                  <td><span class="badge bg-<%= sBadge[a.status||0] %>"><%= sLabel[a.status||0] %></span></td>
+                </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+          <% } else { %>
+          <div class="text-center py-4 text-muted"><i class="fas fa-inbox fa-2x mb-2 d-block" style="opacity:.2"></i>No applications yet</div>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Recent Jobs -->
+      <div class="col-lg-5">
+        <div class="admin-table">
+          <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold mb-0"><i class="fas fa-briefcase me-2 text-primary"></i>Recent Jobs</h6>
+            <a href="/admin/jobs" class="btn btn-outline-primary btn-sm">View All</a>
+          </div>
+          <% if (recentJobs.length) { %>
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead><tr><th>Title</th><th>Apps</th><th>Status</th></tr></thead>
+              <tbody>
+                <% const aLabel={0:'Pending',1:'Approved',2:'Rejected'}; const aBadge={0:'warning',1:'success',2:'danger'}; %>
+                <% for (const j of recentJobs) { %>
+                <tr>
+                  <td class="small fw-semibold"><a href="/admin/jobs/<%= j.jobid %>/edit" class="text-dark text-decoration-none"><%= j.jobtitle.substring(0,30) %></a></td>
+                  <td class="text-center"><span class="badge bg-light text-dark"><%= j.appcount %></span></td>
+                  <td><span class="badge bg-<%= aBadge[j.approvalstatus] %>"><%= aLabel[j.approvalstatus] %></span></td>
+                </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+          <% } else { %>
+          <div class="text-center py-4 text-muted"><i class="fas fa-briefcase fa-2x mb-2 d-block" style="opacity:.2"></i>No jobs yet</div>
+          <% } %>
+        </div>
+
+        <div class="mt-3 d-grid gap-2">
+          <a href="/admin/categories/create" class="btn btn-outline-primary">
+            <i class="fas fa-folder-plus me-2"></i>Add Job Category
+          </a>
+          <a href="/admin/jobs/create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Post New Job
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

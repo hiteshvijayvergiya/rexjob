@@ -1,0 +1,188 @@
+<div class="container mt-4 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <% if (job) { %>
+      <div class="mb-4 p-3 rounded-3" style="background:#eff6ff;border:1.5px solid #bfdbfe">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-bold text-primary fs-5"><%= job.jobtitle %></div>
+            <div class="text-muted small">
+              <% if (job.categoryname) { %><i class="fas fa-folder me-1"></i><%= job.categoryname %><% } %>
+              <% if (job.cityname) { %> &nbsp;·&nbsp; <i class="fas fa-map-marker-alt me-1"></i><%= job.cityname %><% } %>
+            </div>
+          </div>
+          <a href="/jobs/<%= job.jobid %>" class="btn btn-outline-primary btn-sm">View Job</a>
+        </div>
+      </div>
+      <% } %>
+
+      <div class="form-card">
+        <h4 class="fw-bold mb-1"><%= job ? 'Apply for this Position' : 'Submit Your Resume' %></h4>
+        <p class="text-muted small mb-4"><%= job ? 'Fill in your details to apply.' : 'Submit your resume and we will match you with the best opportunities.' %></p>
+
+        <div id="formAlert" class="d-none"></div>
+
+        <form id="applyForm" enctype="multipart/form-data">
+          <% if (job) { %>
+          <input type="hidden" name="jobid" value="<%= job.jobid %>">
+          <% } %>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Full Name <span class="text-danger">*</span></label>
+              <input type="text" name="fullname" class="form-control" required
+                value="<%= candidate ? candidate.candidatename : (currentUser ? (currentUser.fname + ' ' + currentUser.lname).trim() : '') %>"
+                placeholder="Your full name">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Email <span class="text-danger">*</span></label>
+              <input type="email" name="email" class="form-control" required
+                value="<%= candidate ? candidate.candidateemail : (currentUser ? currentUser.useremail : '') %>"
+                placeholder="your@email.com">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Mobile</label>
+              <input type="tel" name="mobile" class="form-control"
+                value="<%= candidate ? (candidate.candidatemobile || '') : '' %>"
+                placeholder="+91 9999999999">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Current Location</label>
+              <input type="text" name="currentlocation" class="form-control" placeholder="City, State">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Experience (Yrs)</label>
+              <select name="expyear" class="form-select">
+                <% for (let i=0;i<=30;i++) { %>
+                <option value="<%= i %>" <%= candidate && candidate.expyear==i?'selected':'' %>><%= i %> yr<%= i!==1?'s':'' %></option>
+                <% } %>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Months</label>
+              <select name="expmonth" class="form-select">
+                <% for (let i=0;i<=11;i++) { %>
+                <option value="<%= i %>"><%= i %> mo</option>
+                <% } %>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Current Salary (LPA)</label>
+              <input type="number" name="currentsalary" class="form-control"
+                value="<%= candidate ? (candidate.currentsalary || '') : '' %>" placeholder="0">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Expected Salary (LPA)</label>
+              <input type="number" name="expectedsalary" class="form-control"
+                value="<%= candidate ? (candidate.expectedsalary || '') : '' %>" placeholder="0">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Notice Period (days)</label>
+              <select name="noticeperiod" class="form-select">
+                <option value="0">Immediate</option>
+                <option value="15">15 Days</option>
+                <option value="30">30 Days</option>
+                <option value="60">60 Days</option>
+                <option value="90">90 Days</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Highest Qualification</label>
+              <input type="text" name="qualification" class="form-control"
+                value="<%= candidate ? (candidate.qualification || '') : '' %>"
+                placeholder="e.g. B.Tech, MBA">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Key Skills</label>
+              <input type="text" name="skills" class="form-control"
+                value="<%= candidate ? (candidate.skills || '') : '' %>"
+                placeholder="e.g. Node.js, React, MySQL, AWS">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Reason for Change</label>
+              <input type="text" name="reasonforchange" class="form-control" placeholder="Optional">
+            </div>
+
+            <% if (job) { %>
+            <div class="col-12">
+              <label class="form-label">Cover Letter</label>
+              <textarea name="coverletter" class="form-control" rows="3"
+                placeholder="Why are you interested in this role?"></textarea>
+            </div>
+            <% } %>
+
+            <div class="col-12">
+              <label class="form-label">
+                Resume / CV <span class="text-danger">*</span>
+                <span class="text-muted fw-normal small">(PDF, DOC, DOCX — max 5MB)</span>
+              </label>
+              <input type="file" name="resume" class="form-control"
+                accept=".pdf,.doc,.docx" <%= job ? 'required' : '' %>>
+              <% if (candidate && candidate.resumepath) { %>
+              <div class="form-text">
+                <i class="fas fa-file-pdf text-danger me-1"></i>
+                Current resume: <a href="<%= candidate.resumepath %>" target="_blank" class="text-primary">View</a>
+                (uploading a new file will replace it)
+              </div>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="d-flex gap-3 mt-4">
+            <button type="submit" class="btn btn-primary btn-lg px-5 fw-semibold" id="submitBtn">
+              <i class="fas fa-paper-plane me-2"></i><%= job ? 'Submit Application' : 'Submit Resume' %>
+            </button>
+            <a href="/jobs/category" class="btn btn-outline-secondary btn-lg">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('applyForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const alertDiv = document.getElementById('formAlert');
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+  alertDiv.className = 'd-none';
+
+  try {
+    const fd = new FormData(this);
+    const res = await fetch('/apply', { method: 'POST', body: fd });
+    const data = await res.json();
+
+    if (data.statusCode === 200) {
+      alertDiv.className = 'alert alert-success';
+      alertDiv.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + data.msg;
+      this.reset();
+      setTimeout(() => { window.location.href = '/thank-you'; }, 1500);
+    } else {
+      alertDiv.className = 'alert alert-danger';
+      alertDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + data.msg;
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i><%= job ? "Submit Application" : "Submit Resume" %>';
+    }
+  } catch(err) {
+    alertDiv.className = 'alert alert-danger';
+    alertDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Network error. Please try again.';
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit';
+  }
+});
+</script>

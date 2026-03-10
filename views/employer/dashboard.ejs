@@ -1,0 +1,113 @@
+<div class="container mt-4 mb-5">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="fw-bold mb-0">Employer Dashboard</h4>
+      <p class="text-muted small mb-0">Manage your job postings, <%= user.fname %>!</p>
+    </div>
+    <a href="/employer/jobs/create" class="btn btn-primary">
+      <i class="fas fa-plus me-2"></i>Post a New Job
+    </a>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card card p-3 text-center h-100">
+        <div class="fw-bold fs-2 text-primary"><%= stats.total %></div>
+        <div class="text-muted small">Total Jobs</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card card p-3 text-center h-100">
+        <div class="fw-bold fs-2 text-success"><%= stats.approved %></div>
+        <div class="text-muted small">Live / Approved</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card card p-3 text-center h-100">
+        <div class="fw-bold fs-2 text-warning"><%= stats.pending %></div>
+        <div class="text-muted small">Pending Review</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card card p-3 text-center h-100">
+        <div class="fw-bold fs-2 text-info"><%= stats.totalApps %></div>
+        <div class="text-muted small">Total Applications</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jobs Table -->
+  <div class="admin-table">
+    <div class="p-3 border-bottom">
+      <h6 class="fw-bold mb-0"><i class="fas fa-briefcase me-2 text-primary"></i>My Job Postings</h6>
+    </div>
+
+    <% if (myJobs.length) { %>
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Job Title</th>
+            <th>Category</th>
+            <th>Applications</th>
+            <th>Posted</th>
+            <th>Status</th>
+            <th style="width:140px">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const j of myJobs) { %>
+          <tr>
+            <td>
+              <a href="/employer/jobs/<%= j.jobid %>" class="fw-semibold text-dark text-decoration-none">
+                <%= j.jobtitle %>
+              </a>
+              <% if (j.approvalstatus == 2 && j.rejectionreason) { %>
+              <div class="text-danger small mt-1">
+                <i class="fas fa-exclamation-circle me-1"></i>Rejected: <%= j.rejectionreason %>
+              </div>
+              <% } %>
+            </td>
+            <td class="text-muted small"><%= j.categoryname || '—' %></td>
+            <td class="text-center">
+              <a href="/employer/jobs/<%= j.jobid %>" class="badge bg-light text-dark border text-decoration-none">
+                <%= j.appcount %> app<%= j.appcount != 1 ? 's' : '' %>
+              </a>
+            </td>
+            <td class="text-muted small"><%= moment(j.addeddate).format('DD MMM YYYY') %></td>
+            <td>
+              <span class="badge bg-<%= aBadge[j.approvalstatus||0] %>">
+                <%= aLabel[j.approvalstatus||0] %>
+              </span>
+              <% if (j.approvalstatus == 1) { %>
+              <div class="text-success" style="font-size:.72rem"><i class="fas fa-eye me-1"></i>Live on site</div>
+              <% } else if (j.approvalstatus == 0) { %>
+              <div class="text-muted" style="font-size:.72rem"><i class="fas fa-clock me-1"></i>Awaiting review</div>
+              <% } %>
+            </td>
+            <td>
+              <div class="d-flex gap-1">
+                <a href="/employer/jobs/<%= j.jobid %>/edit" class="btn btn-sm btn-outline-primary py-0 px-2" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </a>
+                <a href="/employer/jobs/<%= j.jobid %>" class="btn btn-sm btn-outline-info py-0 px-2" title="View applications">
+                  <i class="fas fa-users"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+    <% } else { %>
+    <div class="text-center py-5">
+      <i class="fas fa-briefcase fa-3x text-muted mb-3 d-block" style="opacity:.15"></i>
+      <p class="text-muted">You haven't posted any jobs yet.</p>
+      <a href="/employer/jobs/create" class="btn btn-primary">Post Your First Job</a>
+    </div>
+    <% } %>
+  </div>
+</div>

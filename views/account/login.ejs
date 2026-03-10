@@ -1,32 +1,26 @@
-<h4 class="text-center mb-4">Login to Your Account</h4>
+<h5 class="fw-bold mb-1">Welcome back</h5>
+<p class="text-muted small mb-4">Sign in to your account to continue</p>
 
-<form action="/account/login" method="POST">
-    <div class="mb-3">
-        <label for="email" class="form-label">Email Address</label>
-        <input type="email" class="form-control" id="email" name="email" required>
+<form method="POST" action="/account/login">
+  <div class="mb-3">
+    <label class="form-label">Email Address</label>
+    <input type="email" name="email" class="form-control" required
+           placeholder="admin@rexjobs.com" autofocus autocomplete="email">
+  </div>
+  <div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+      <label class="form-label mb-0">Password</label>
+      <a href="/account/forgot-password" class="small text-primary text-decoration-none">Forgot password?</a>
     </div>
-    
-    <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" class="form-control" id="password" name="password" required>
-    </div>
-    
-    <div class="mb-3 form-check">
-        <input type="checkbox" class="form-check-input" id="rememberme" name="rememberme">
-        <label class="form-check-label" for="rememberme">Remember me</label>
-    </div>
-    
-    <button type="submit" class="btn btn-primary w-100 mb-3">
-        <i class="fas fa-sign-in-alt"></i> Login
-    </button>
-    
-    <div class="text-center">
-        <a href="/account/forgot-password" class="text-muted">Forgot Password?</a>
-    </div>
+    <input type="password" name="password" class="form-control" required
+           placeholder="••••••••" autocomplete="current-password">
+  </div>
+  <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+  </button>
 </form>
 
-<hr class="my-4">
-
-<div class="text-center">
-    <p class="mb-0">Don't have an account? <a href="/account/signup">Sign Up</a></p>
-</div>
+<div class="divider mt-4"><span>New here?</span></div>
+<a href="/account/signup" class="btn btn-outline-primary w-100 fw-semibold">
+  <i class="fas fa-user-plus me-2"></i>Create Account
+</a>

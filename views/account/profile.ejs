@@ -1,168 +1,104 @@
-<!-- Profile Page -->
-<section class="page-header bg-primary text-white py-4">
-    <div class="container">
-        <h1 class="text-center mb-3">My Profile</h1>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb justify-content-center mb-0">
-                <li class="breadcrumb-item"><a href="/" class="text-white">Home</a></li>
-                <li class="breadcrumb-item"><a href="/dashboard" class="text-white">Dashboard</a></li>
-                <li class="breadcrumb-item active text-white">Profile</li>
-            </ol>
-        </nav>
+<!-- views/account/profile.ejs -->
+<div class="container mt-4 mb-5">
+  <div class="row g-4">
+
+    <!-- Left: Profile Form -->
+    <div class="col-lg-4">
+      <div class="form-card text-center mb-4">
+        <div class="mb-3"><i class="fas fa-user-circle fa-5x text-primary" style="opacity:.6"></i></div>
+        <h5 class="fw-bold mb-0"><%= user.fname %> <%= user.lname %></h5>
+        <p class="text-muted small mb-0"><%= user.useremail %></p>
+        <% if (user.isadmin || user.issuperadmin) { %>
+          <span class="badge bg-primary mt-2">Admin</span>
+        <% } else if (user.usertypeid === 3) { %>
+          <span class="badge bg-warning text-dark mt-2">Employer</span>
+        <% } else { %>
+          <span class="badge bg-success mt-2">Job Seeker</span>
+        <% } %>
+      </div>
+
+      <div class="form-card">
+        <h6 class="fw-bold mb-3">Edit Profile</h6>
+        <form method="POST" action="/account/profile">
+          <div class="mb-3">
+            <label class="form-label">First Name</label>
+            <input type="text" name="fname" class="form-control" value="<%= user.fname %>" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Last Name</label>
+            <input type="text" name="lname" class="form-control" value="<%= user.lname %>">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mobile</label>
+            <input type="tel" name="mobile" class="form-control" value="<%= user.mobile || '' %>">
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+        </form>
+      </div>
     </div>
-</section>
 
-<section class="py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-3 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <% if (user.userimage) { %>
-                                <img src="<%= user.userimage %>" alt="Profile" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
-                            <% } else { %>
-                                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" 
-                                     style="width: 100px; height: 100px; font-size: 2.5rem;">
-                                    <%= user.fname ? user.fname.charAt(0).toUpperCase() : 'U' %>
-                                </div>
-                            <% } %>
-                        </div>
-                        <h5 class="mb-1"><%= user.fname %> <%= user.lname || '' %></h5>
-                        <p class="text-muted small mb-3"><%= user.useremail %></p>
-                        <div class="d-grid gap-2">
-                            <a href="#personalInfo" class="btn btn-outline-primary btn-sm">Personal Info</a>
-                            <a href="#changePassword" class="btn btn-outline-primary btn-sm">Change Password</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Right: My Jobs (Employer) or My Apps (Candidate) -->
+    <div class="col-lg-8">
 
-            <div class="col-lg-9">
-                <!-- Personal Information -->
-                <div id="personalInfo" class="card shadow-sm mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">Personal Information</h5>
-                    </div>
-                    <div class="card-body">
-                        <form action="/account/profile" method="POST">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">First Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="fname" value="<%= user.fname %>" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Last Name</label>
-                                    <input type="text" class="form-control" name="lname" value="<%= user.lname || '' %>">
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Email <span class="text-danger">*</span></label>
-                                    <input type="email" class="form-control" value="<%= user.useremail %>" disabled>
-                                    <small class="text-muted">Email cannot be changed</small>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Mobile</label>
-                                    <input type="tel" class="form-control" name="mobile" value="<%= user.mobile || '' %>">
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Gender</label>
-                                    <select class="form-select" name="gendar">
-                                        <option value="">Select Gender</option>
-                                        <option value="1" <%= user.gendar == 1 ? 'selected' : '' %>>Male</option>
-                                        <option value="2" <%= user.gendar == 2 ? 'selected' : '' %>>Female</option>
-                                        <option value="3" <%= user.gendar == 3 ? 'selected' : '' %>>Other</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Age</label>
-                                    <input type="number" class="form-control" name="age" value="<%= user.age || '' %>">
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Address</label>
-                                <textarea class="form-control" name="address" rows="3"><%= user.address || '' %></textarea>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>Save Changes
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Change Password -->
-                <div id="changePassword" class="card shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">Change Password</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="changePasswordForm">
-                            <div class="mb-3">
-                                <label class="form-label">Current Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" name="currentPassword" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">New Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" name="newPassword" required minlength="6">
-                                <small class="text-muted">Minimum 6 characters</small>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" name="confirmPassword" required>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-key me-2"></i>Change Password
-                            </button>
-                        </form>
-                        <div id="passwordMsg" class="mt-3"></div>
-                    </div>
-                </div>
-            </div>
+      <% if (myJobs && myJobs.length >= 0 && (user.usertypeid === 3 || user.isadmin)) { %>
+      <!-- EMPLOYER: My Posted Jobs -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">My Posted Jobs</h5>
+        <a href="/admin/jobs/create" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>Post New Job</a>
+      </div>
+      <% if (myJobs.length) { %>
+      <div class="admin-table mb-4">
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead><tr><th>Job Title</th><th>Category</th><th>Apps</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+              <% for (const j of myJobs) { %>
+              <tr>
+                <td><a href="/admin/jobs/<%= j.jobid %>/edit" class="fw-semibold text-dark"><%= j.jobtitle %></a></td>
+                <td class="small text-muted"><%= j.categoryname || '-' %></td>
+                <td class="text-center"><span class="badge bg-light text-dark border"><%= j.appcount %></span></td>
+                <td>
+                  <span class="badge job-badge <%= j.approvalstatus==0?'badge-pending':j.approvalstatus==1?'badge-approved':'badge-rejected' %>">
+                    <%= approvalLabels[j.approvalstatus] || 'Unknown' %>
+                  </span>
+                </td>
+                <td class="small text-muted"><%= moment(j.addeddate).format('DD MMM YYYY') %></td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
         </div>
-    </div>
-</section>
+      </div>
+      <% } else { %>
+      <div class="form-card text-center text-muted py-5 mb-4">
+        <i class="fas fa-briefcase fa-3x mb-3" style="opacity:.2"></i>
+        <p>You haven't posted any jobs yet.</p>
+        <a href="/admin/jobs/create" class="btn btn-primary">Post First Job</a>
+      </div>
+      <% } %>
+      <% } %>
 
-<script>
-document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const form = this;
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData);
-    const msgDiv = document.getElementById('passwordMsg');
-    
-    if (data.newPassword !== data.confirmPassword) {
-        msgDiv.innerHTML = '<div class="alert alert-danger">Passwords do not match</div>';
-        return;
-    }
-    
-    try {
-        const response = await fetch('/account/change-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        
-        const result = await response.json();
-        
-        if (result.statusCode === 200) {
-            msgDiv.innerHTML = '<div class="alert alert-success">Password changed successfully</div>';
-            form.reset();
-        } else {
-            msgDiv.innerHTML = `<div class="alert alert-danger">${result.msg}</div>`;
-        }
-    } catch (error) {
-        msgDiv.innerHTML = '<div class="alert alert-danger">Failed to change password</div>';
-    }
-});
-</script>
+      <!-- Quick Links -->
+      <div class="form-card">
+        <h6 class="fw-bold mb-3">Quick Actions</h6>
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="/my-applications" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-list me-1"></i>My Applications
+          </a>
+          <a href="/apply" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-paper-plane me-1"></i>Submit Resume
+          </a>
+          <a href="/jobs/category" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-search me-1"></i>Browse Jobs
+          </a>
+          <% if (user.isadmin || user.issuperadmin) { %>
+          <a href="/admin/dashboard" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-tachometer-alt me-1"></i>Admin Panel
+          </a>
+          <% } %>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

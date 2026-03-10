@@ -1,0 +1,116 @@
+<!-- views/front/category.ejs -->
+<div class="container mt-4 mb-5">
+
+  <!-- Breadcrumb -->
+  <% if (breadcrumb.length) { %>
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/jobs/category">Categories</a></li>
+      <% for (const b of breadcrumb) { %>
+        <% if (currentCat && b.categoryid === currentCat.categoryid) { %>
+          <li class="breadcrumb-item active"><%= b.categoryname %></li>
+        <% } else { %>
+          <li class="breadcrumb-item"><a href="/jobs/category/<%= b.categoryid %>"><%= b.categoryname %></a></li>
+        <% } %>
+      <% } %>
+    </ol>
+  </nav>
+  <% } %>
+
+  <!-- Page title -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-0"><%= currentCat ? currentCat.categoryname : 'All Categories' %></h3>
+      <% if (currentCat && currentCat.categorydescription) { %>
+        <p class="text-muted mb-0"><%= currentCat.categorydescription %></p>
+      <% } %>
+    </div>
+    <% if (currentCat) { %>
+      <a href="/apply?cat=<%= currentCat.categoryid %>" class="btn btn-primary">
+        <i class="fas fa-paper-plane me-1"></i>Submit Resume
+      </a>
+    <% } %>
+  </div>
+
+  <!-- ── SUB-CATEGORIES (not a leaf) ── -->
+  <% if (!isLeaf) { %>
+    <% if (subCats.length) { %>
+    <div class="row g-3">
+      <% for (const c of subCats) { %>
+      <div class="col-6 col-md-4 col-lg-3">
+        <a href="/jobs/category/<%= c.categoryid %>" class="cat-card d-block text-decoration-none text-dark position-relative">
+          <% if (c.children && c.children.length > 0) { %>
+            <!-- has further sub-categories -->
+            <div class="cat-icon"><i class="fas fa-folder-open"></i></div>
+          <% } else { %>
+            <div class="cat-icon"><i class="fas fa-file-alt"></i></div>
+          <% } %>
+          <div class="fw-semibold"><%= c.categoryname %></div>
+          <div class="text-muted small"><%= c.jobcount %> jobs</div>
+          <% if (c.children && c.children.length > 0) { %>
+            <span class="position-absolute top-0 end-0 m-2 badge" style="background:#eff6ff;color:#1d4ed8;font-size:.65rem">
+              Has sub-categories
+            </span>
+          <% } %>
+        </a>
+      </div>
+      <% } %>
+    </div>
+    <% } else { %>
+      <div class="text-center py-5 text-muted">
+        <i class="fas fa-folder-open fa-3x mb-3 d-block" style="opacity:.2"></i>
+        No sub-categories found.
+      </div>
+    <% } %>
+
+  <!-- ── LEAF: SHOW JOBS ── -->
+  <% } else { %>
+    <% if (jobs.length) { %>
+      <div class="row g-3">
+        <% for (const j of jobs) { %>
+        <div class="col-md-6">
+          <div class="job-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <a href="/jobs/<%= j.jobid %>" class="fw-bold text-dark d-block"><%= j.jobtitle %></a>
+                <span class="text-muted small"><i class="fas fa-map-marker-alt me-1"></i><%= j.cityname || 'Remote' %></span>
+              </div>
+              <span class="job-badge badge" style="background:#eff6ff;color:#1d4ed8">
+                <%= jobTypeMap[j.jobtype] || 'Full-time' %>
+              </span>
+            </div>
+            <div class="d-flex gap-3 mb-3 flex-wrap" style="font-size:.8rem;color:#64748b">
+              <% if (j.expstart || j.expend) { %><span><i class="fas fa-briefcase me-1"></i><%= j.expstart %>-<%= j.expend %> yrs</span><% } %>
+              <% if (j.salarystart || j.salaryend) { %><span><i class="fas fa-rupee-sign me-1"></i><%= Number(j.salarystart||0).toLocaleString() %>-<%= Number(j.salaryend||0).toLocaleString() %></span><% } %>
+              <% if (j.jobend) { %><span><i class="fas fa-calendar me-1"></i>Deadline: <%= new Date(j.jobend).toLocaleDateString() %></span><% } %>
+            </div>
+            <% if (j.jobdescription) { %>
+            <p class="text-muted small mb-3" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
+              <%= j.jobdescription %>
+            </p>
+            <% } %>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted" style="font-size:.75rem"><%= moment(j.addeddate).fromNow() %></span>
+              <div class="d-flex gap-2">
+                <a href="/jobs/<%= j.jobid %>" class="btn btn-outline-primary btn-sm">View</a>
+                <a href="/apply?job=<%= j.jobid %>" class="btn btn-primary btn-sm">Apply Now</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <% } %>
+      </div>
+    <% } else { %>
+      <div class="text-center py-5">
+        <i class="fas fa-briefcase fa-3x mb-3 d-block text-muted" style="opacity:.3"></i>
+        <h5 class="text-muted">No jobs in this category yet</h5>
+        <p class="text-muted">Submit your resume and we'll notify you when jobs are added.</p>
+        <a href="/apply<%= currentCat ? '?cat='+currentCat.categoryid : '' %>" class="btn btn-primary px-4">
+          <i class="fas fa-paper-plane me-2"></i>Submit Resume
+        </a>
+      </div>
+    <% } %>
+  <% } %>
+
+</div>

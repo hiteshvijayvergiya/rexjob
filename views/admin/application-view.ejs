@@ -1,0 +1,82 @@
+<!-- views/admin/application-view.ejs -->
+<div class="admin-wrapper">
+  <%- include('../partials/adminsidebar') %>
+  <div class="admin-content">
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <a href="/admin/applications" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i></a>
+      <h4 class="fw-bold mb-0">Application #<%= app.applicationid %></h4>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="form-card mb-4">
+          <h6 class="fw-bold mb-3 border-bottom pb-2">Applicant Details</h6>
+          <div class="row g-3">
+            <div class="col-md-6"><span class="text-muted small d-block">Full Name</span><strong><%= app.fullname %></strong></div>
+            <div class="col-md-6"><span class="text-muted small d-block">Email</span><a href="mailto:<%= app.email %>"><%= app.email %></a></div>
+            <div class="col-md-6"><span class="text-muted small d-block">Mobile</span><%= app.mobile || '-' %></div>
+            <div class="col-md-6"><span class="text-muted small d-block">Location</span><%= app.currentlocation || '-' %></div>
+            <div class="col-md-6"><span class="text-muted small d-block">Experience</span><%= app.expyear %>y <%= app.expmonth %>m</div>
+            <div class="col-md-6"><span class="text-muted small d-block">Notice Period</span><%= app.noticeperiod %> days</div>
+            <div class="col-md-6"><span class="text-muted small d-block">Current Salary</span><%= app.currentsalary ? '₹'+Number(app.currentsalary).toLocaleString() : '-' %></div>
+            <div class="col-md-6"><span class="text-muted small d-block">Expected Salary</span><%= app.expectedsalary ? '₹'+Number(app.expectedsalary).toLocaleString() : '-' %></div>
+            <div class="col-md-6"><span class="text-muted small d-block">Qualification</span><%= app.qualification || '-' %></div>
+            <div class="col-md-12"><span class="text-muted small d-block">Skills</span><%= app.skills || '-' %></div>
+            <% if (app.reasonforchange) { %>
+            <div class="col-12"><span class="text-muted small d-block">Reason for Change</span><%= app.reasonforchange %></div>
+            <% } %>
+            <% if (app.coverletter) { %>
+            <div class="col-12"><span class="text-muted small d-block">Cover Letter</span><p class="mb-0"><%= app.coverletter %></p></div>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h6 class="fw-bold mb-3 border-bottom pb-2">Applied Job</h6>
+          <div class="fw-semibold fs-5"><%= app.jobtitle %></div>
+          <div class="text-muted"><%= app.categoryname %></div>
+          <div class="mt-2 text-muted small"><%= app.jobdescription %></div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="form-card mb-3">
+          <h6 class="fw-bold mb-3">Update Status</h6>
+          <select id="statusSelect" class="form-select mb-3">
+            <% for (let i=0; i<statusLabels.length; i++) { %>
+            <option value="<%= i %>" <%= app.status==i?'selected':'' %>><%= statusLabels[i] %></option>
+            <% } %>
+          </select>
+          <button class="btn btn-primary w-100" onclick="updateStatus()">
+            <i class="fas fa-save me-1"></i>Update Status
+          </button>
+        </div>
+
+        <% if (app.resumepath) { %>
+        <div class="form-card mb-3">
+          <h6 class="fw-bold mb-3">Resume</h6>
+          <a href="<%= app.resumepath %>" target="_blank" class="btn btn-outline-success w-100">
+            <i class="fas fa-file-pdf me-2"></i>Download Resume
+          </a>
+        </div>
+        <% } %>
+
+        <div class="form-card">
+          <h6 class="fw-bold mb-3">Meta</h6>
+          <div class="text-muted small">Applied: <%= moment(app.addeddate).format('DD MMM YYYY, HH:mm') %></div>
+          <div class="text-muted small mt-1">App ID: #<%= app.applicationid %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function updateStatus() {
+  const status = document.getElementById('statusSelect').value;
+  $.ajax({ url: '/admin/applications/status', method: 'POST', contentType: 'application/json',
+    data: JSON.stringify({ applicationid: <%= app.applicationid %>, status }),
+    success: r => showToast(r.statusCode===200 ? 'Status updated!' : r.msg, r.statusCode===200?'success':'danger')
+  });
+}
+</script>

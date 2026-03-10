@@ -1,0 +1,96 @@
+<div class="admin-wrapper">
+  <%- include('../partials/adminsidebar') %>
+  <div class="admin-content">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h4 class="fw-bold mb-0">Job Categories</h4>
+        <p class="text-muted small mb-0">Manage the infinite category tree for job listings</p>
+      </div>
+      <a href="/admin/categories/create" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add Category
+      </a>
+    </div>
+
+    <% if (flat.length === 0) { %>
+    <div class="form-card text-center py-5">
+      <i class="fas fa-folder-open fa-3x text-muted mb-3 d-block" style="opacity:.2"></i>
+      <h6 class="text-muted">No categories yet</h6>
+      <a href="/admin/categories/create" class="btn btn-primary mt-2">Create First Category</a>
+    </div>
+    <% } else { %>
+    <div class="admin-table">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Category Name</th>
+              <th>Level</th>
+              <th>Sort</th>
+              <th>Status</th>
+              <th>Added</th>
+              <th style="width:160px">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%
+              function renderRows(nodes, depth) {
+                let html = '';
+                for (const n of nodes) {
+                  const indent = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(depth);
+                  const prefix = depth > 0 ? '└ ' : '';
+                  const badge  = depth === 0 ? 'bg-primary' : depth === 1 ? 'bg-info text-dark' : 'bg-light text-dark';
+                  html += `<tr>
+                    <td class="fw-semibold">
+                      ${indent}${prefix}
+                      <i class="fas fa-folder${depth===0?'':'-open'} me-2 text-warning"></i>
+                      ${n.categoryname}
+                    </td>
+                    <td><span class="badge ${badge} px-2">Level ${n.depth}</span></td>
+                    <td class="text-muted small">${n.sort_order || 0}</td>
+                    <td>
+                      ${n.isactive
+                        ? '<span class="badge bg-success">Active</span>'
+                        : '<span class="badge bg-secondary">Inactive</span>'}
+                    </td>
+                    <td class="text-muted small">${n.addeddate ? moment(n.addeddate).format('DD MMM YY') : ''}</td>
+                    <td>
+                      <a href="/admin/categories/create?parent=${n.categoryid}"
+                         class="btn btn-sm btn-outline-success py-0 px-2 me-1" title="Add sub-category">
+                        <i class="fas fa-folder-plus"></i>
+                      </a>
+                      <a href="/admin/categories/${n.categoryid}/edit"
+                         class="btn btn-sm btn-outline-primary py-0 px-2 me-1" title="Edit">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <button onclick="deleteCategory(${n.categoryid}, '${n.categoryname.replace(/'/g,'\\\'')}')"
+                              class="btn btn-sm btn-outline-danger py-0 px-2" title="Delete">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>`;
+                  if (n.children && n.children.length) html += renderRows(n.children, depth + 1);
+                }
+                return html;
+              }
+            %>
+            <%- renderRows(tree, 0) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+function deleteCategory(id, name) {
+  if (!confirm(`Delete "${name}"?\n\nWarning: sub-categories will lose their parent. This cannot be undone.`)) return;
+  fetch(`/admin/categories/${id}/delete`, { method: 'DELETE' })
+    .then(r => r.json())
+    .then(d => {
+      if (d.statusCode === 200) { location.reload(); }
+      else alert('Error: ' + d.msg);
+    });
+}
+</script>

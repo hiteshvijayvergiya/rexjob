@@ -1,0 +1,149 @@
+<div class="container mt-4 mb-5">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="fw-bold mb-0">My Dashboard</h4>
+      <p class="text-muted small mb-0">Welcome back, <strong><%= user.fname %> <%= user.lname %></strong>!</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/apply" class="btn btn-primary btn-sm"><i class="fas fa-paper-plane me-1"></i>Submit Resume</a>
+      <a href="/jobs/category" class="btn btn-outline-primary btn-sm"><i class="fas fa-search me-1"></i>Browse Jobs</a>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card card p-3 text-center h-100">
+        <div class="fw-bold fs-2 text-primary"><%= myApps.length %></div>
+        <div class="text-muted small">Applied</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card card p-3 text-center h-100">
+        <div class="fw-bold fs-2 text-success"><%= myApps.filter(a => a.status === 1).length %></div>
+        <div class="text-muted small">Shortlisted</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card card p-3 text-center h-100">
+        <div class="fw-bold fs-2 text-info"><%= myApps.filter(a => a.status === 2).length %></div>
+        <div class="text-muted small">Interview</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card card p-3 text-center h-100">
+        <div class="fw-bold fs-2 text-warning"><%= myApps.filter(a => a.status === 0).length %></div>
+        <div class="text-muted small">Pending</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Applications Table -->
+    <div class="col-lg-8">
+      <div class="admin-table">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold mb-0"><i class="fas fa-file-alt me-2 text-primary"></i>My Applications</h6>
+          <a href="/my-applications" class="btn btn-outline-primary btn-sm">View All</a>
+        </div>
+
+        <% if (myApps.length) { %>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr><th>Job Title</th><th>Category</th><th>Applied</th><th>Status</th><th>Resume</th></tr>
+            </thead>
+            <tbody>
+              <% const sL=['New','Shortlisted','Interview','Offered','Rejected','Withdrawn']; %>
+              <% const sB=['secondary','success','info','primary','danger','warning']; %>
+              <% for (const a of myApps.slice(0,8)) { %>
+              <tr>
+                <td class="fw-semibold small"><%= a.jobtitle %></td>
+                <td class="text-muted small"><%= a.categoryname || '—' %></td>
+                <td class="text-muted small"><%= moment(a.addeddate).format('DD MMM YYYY') %></td>
+                <td><span class="badge bg-<%= sB[a.status||0] %>"><%= sL[a.status||0] %></span></td>
+                <td>
+                  <% if (a.resumepath) { %>
+                    <a href="<%= a.resumepath %>" target="_blank" class="btn btn-sm btn-outline-success py-0 px-2">
+                      <i class="fas fa-file-pdf"></i>
+                    </a>
+                  <% } else { %>—<% } %>
+                </td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+        <% } else { %>
+        <div class="text-center py-5">
+          <i class="fas fa-clipboard-list fa-3x text-muted mb-3 d-block" style="opacity:.15"></i>
+          <p class="text-muted">No applications yet.</p>
+          <a href="/jobs/category" class="btn btn-primary btn-sm">Browse & Apply Now</a>
+        </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Profile Card -->
+    <div class="col-lg-4">
+      <div class="form-card mb-3">
+        <h6 class="fw-bold mb-3"><i class="fas fa-user me-2 text-primary"></i>My Profile</h6>
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div style="width:50px;height:50px;background:#eff6ff;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i class="fas fa-user text-primary"></i>
+          </div>
+          <div>
+            <div class="fw-semibold"><%= user.fname %> <%= user.lname %></div>
+            <div class="text-muted small"><%= user.useremail %></div>
+          </div>
+        </div>
+
+        <% if (candidate) { %>
+          <div class="small mb-1">
+            <span class="text-muted">Experience:</span>
+            <strong><%= candidate.expyear %>y <%= candidate.expmonth %>m</strong>
+          </div>
+          <% if (candidate.qualification) { %>
+          <div class="small mb-1">
+            <span class="text-muted">Qualification:</span>
+            <strong><%= candidate.qualification %></strong>
+          </div>
+          <% } %>
+          <% if (candidate.skills) { %>
+          <div class="small mb-2">
+            <span class="text-muted">Skills:</span>
+            <strong><%= candidate.skills.length > 80 ? candidate.skills.substring(0,80) + '...' : candidate.skills %></strong>
+          </div>
+          <% } %>
+          <% if (candidate.resumepath) { %>
+          <a href="<%= candidate.resumepath %>" target="_blank" class="btn btn-outline-success btn-sm w-100 mb-2">
+            <i class="fas fa-file-pdf me-1"></i>View My Resume
+          </a>
+          <% } %>
+        <% } else { %>
+          <p class="text-muted small">No profile yet. Submit your resume to create one.</p>
+        <% } %>
+
+        <a href="/account/profile" class="btn btn-outline-primary btn-sm w-100">
+          <i class="fas fa-edit me-1"></i>Edit Profile
+        </a>
+      </div>
+
+      <div class="form-card">
+        <h6 class="fw-bold mb-3">Quick Actions</h6>
+        <div class="d-grid gap-2">
+          <a href="/apply" class="btn btn-primary btn-sm">
+            <i class="fas fa-paper-plane me-2"></i>Submit / Update Resume
+          </a>
+          <a href="/jobs/category" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-search me-2"></i>Browse All Jobs
+          </a>
+          <a href="/my-applications" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-list me-2"></i>All My Applications
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

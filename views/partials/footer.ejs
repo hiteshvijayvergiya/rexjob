@@ -1,105 +1,74 @@
-<footer class="footer bg-dark text-white mt-5">
-    <div class="container py-5">
-        <div class="row">
-            <!-- About -->
-            <div class="col-md-4 mb-4">
-                <h5 class="text-uppercase mb-3"><%= appName %></h5>
-                <p class="text-muted">
-                    Your trusted partner in finding the perfect job. Connect with top companies and build your dream career.
-                </p>
-                <div class="social-links mt-3">
-                    <a href="#" class="text-white me-3"><i class="fab fa-facebook-f fa-lg"></i></a>
-                    <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
-                    <a href="#" class="text-white me-3"><i class="fab fa-linkedin-in fa-lg"></i></a>
-                    <a href="#" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
-                </div>
-            </div>
-            
-            <!-- Quick Links -->
-            <div class="col-md-2 mb-4">
-                <h5 class="text-uppercase mb-3">Quick Links</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="/" class="text-muted text-decoration-none">Home</a></li>
-                    <li class="mb-2"><a href="/career" class="text-muted text-decoration-none">Career</a></li>
-                    <li class="mb-2"><a href="/about" class="text-muted text-decoration-none">About Us</a></li>
-                    <li class="mb-2"><a href="/contact" class="text-muted text-decoration-none">Contact</a></li>
-                </ul>
-            </div>
-            
-            <!-- For Employers -->
-            <div class="col-md-2 mb-4">
-                <h5 class="text-uppercase mb-3">For Employers</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="/jobs/post" class="text-muted text-decoration-none">Post a Job</a></li>
-                    <li class="mb-2"><a href="/dashboard" class="text-muted text-decoration-none">Dashboard</a></li>
-                    <li class="mb-2"><a href="/applications" class="text-muted text-decoration-none">Applications</a></li>
-                    <li class="mb-2"><a href="/candidates" class="text-muted text-decoration-none">Candidates</a></li>
-                </ul>
-            </div>
-            
-            <!-- Newsletter -->
-            <div class="col-md-4 mb-4">
-                <h5 class="text-uppercase mb-3">Newsletter</h5>
-                <p class="text-muted">Subscribe to get latest job updates</p>
-                <form id="newsletterForm">
-                    <div class="input-group">
-                        <input type="email" class="form-control" id="newsletterEmail" placeholder="Your email" required>
-                        <button class="btn btn-primary" type="submit">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                    <small class="text-muted d-block mt-2" id="newsletterMsg"></small>
-                </form>
-            </div>
+<footer>
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="footer-brand">
+          <i class="fas fa-briefcase"></i>
+          <%= appName || 'RexJobs' %>
+          <span class="footer-dot"></span>
         </div>
-        
-        <hr class="my-4 bg-secondary">
-        
-        <div class="row">
-            <div class="col-md-6 text-center text-md-start">
-                <p class="mb-0 text-muted">
-                    &copy; <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.
-                </p>
-            </div>
-            <div class="col-md-6 text-center text-md-end">
-                <a href="/privacy-policy" class="text-muted text-decoration-none me-3">Privacy Policy</a>
-                <a href="/terms-and-conditions" class="text-muted text-decoration-none me-3">Terms of Service</a>
-                <a href="/do-not-sell" class="text-muted text-decoration-none me-3">Do Not Sell</a>
-                <a href="/cookie-policy" class="text-muted text-decoration-none me-3">Cookie Policy</a>
-                <a href="/faq" class="text-muted text-decoration-none">FAQ</a>
-
-            </div>
+        <p style="color:rgba(255,255,255,.6);font-size:.88rem">Your trusted partner for finding the perfect job. Connect with top companies and build your dream career.</p>
+        <div class="d-flex gap-3 mt-3">
+          <a href="#" style="color:rgba(255,255,255,.5);font-size:1.1rem"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" style="color:rgba(255,255,255,.5);font-size:1.1rem"><i class="fab fa-twitter"></i></a>
+          <a href="#" style="color:rgba(255,255,255,.5);font-size:1.1rem"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" style="color:rgba(255,255,255,.5);font-size:1.1rem"><i class="fab fa-instagram"></i></a>
         </div>
+      </div>
+      <div class="col-md-2">
+        <h6 class="mb-3" style="font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:#64748b">Quick Links</h6>
+        <ul class="list-unstyled" style="display:flex;flex-direction:column;gap:.5rem">
+          <li><a href="/">Home</a></li>
+          <li><a href="/jobs/category">Browse Jobs</a></li>
+          <li><a href="/apply">Apply Now</a></li>
+          <li><a href="/about">About Us</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="col-md-2">
+        <h6 class="mb-3" style="font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:#64748b">For Employers</h6>
+        <ul class="list-unstyled" style="display:flex;flex-direction:column;gap:.5rem">
+          <li><a href="/employer/jobs/create">Post a Job</a></li>
+          <li><a href="/employer/dashboard">Dashboard</a></li>
+          <li><a href="/account/signup">Register</a></li>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h6 class="mb-3" style="font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:#64748b">Stay Updated</h6>
+        <p style="color:rgba(255,255,255,.6);font-size:.85rem;margin-bottom:1rem">Subscribe to get the latest job openings in your inbox.</p>
+        <form id="newsletterForm">
+          <div class="input-group">
+            <input type="email" id="newsletterEmail" class="form-control" placeholder="your@email.com" required>
+            <button class="btn btn-primary" type="submit"><i class="fas fa-paper-plane"></i></button>
+          </div>
+          <small id="newsletterMsg" class="d-block mt-2" style="color:rgba(255,255,255,.5)"></small>
+        </form>
+      </div>
     </div>
+
+    <hr style="border-color:rgba(255,255,255,.08);margin:2.5rem 0 1.5rem">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+      <p style="margin:0;color:rgba(255,255,255,.4);font-size:.82rem">&copy; <%= new Date().getFullYear() %> <%= appName || 'RexJobs' %>. All rights reserved.</p>
+      <div class="d-flex gap-3" style="font-size:.8rem">
+        <a href="/privacy-policy">Privacy</a>
+        <a href="/terms-and-conditions">Terms</a>
+      </div>
+    </div>
+  </div>
 </footer>
 
-<!-- Newsletter Subscription Script -->
 <script>
 document.getElementById('newsletterForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const email = document.getElementById('newsletterEmail').value;
-    const msgEl = document.getElementById('newsletterMsg');
-    
-    try {
-        const response = await fetch('/newsletter', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-        
-        const data = await response.json();
-        
-        if (data.statusCode === 200) {
-            msgEl.className = 'text-success d-block mt-2';
-            msgEl.textContent = data.msg;
-            document.getElementById('newsletterEmail').value = '';
-        } else {
-            msgEl.className = 'text-danger d-block mt-2';
-            msgEl.textContent = data.msg;
-        }
-    } catch (error) {
-        msgEl.className = 'text-danger d-block mt-2';
-        msgEl.textContent = 'Failed to subscribe. Please try again.';
-    }
+  e.preventDefault();
+  const email = document.getElementById('newsletterEmail').value;
+  const msgEl = document.getElementById('newsletterMsg');
+  try {
+    const r = await fetch('/newsletter', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email}) });
+    const d = await r.json();
+    msgEl.style.color = d.statusCode===200 ? '#6ee7b7' : '#fca5a5';
+    msgEl.textContent = d.msg;
+    if (d.statusCode===200) document.getElementById('newsletterEmail').value='';
+  } catch(err) { msgEl.textContent = 'Something went wrong.'; }
 });
 </script>

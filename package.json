@@ -1,55 +1,36 @@
 {
-  "name": "rexjobs-nodejs",
-  "version": "1.0.0",
-  "description": "RexJobs - Job Portal (Node.js + EJS + MySQL)",
+  "name": "rexjobs",
+  "version": "2.0.0",
+  "description": "RexJobs - MySQL + Node.js + EJS",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "migrate:latest": "knex migrate:latest",
-    "migrate:rollback": "knex migrate:rollback",
-    "migrate:make": "knex migrate:make",
-    "seed:run": "knex seed:run"
+    "migrate": "knex migrate:latest",
+    "rollback": "knex migrate:rollback",
+    "seed": "knex seed:run",
+    "setup": "knex migrate:latest && knex seed:run"
   },
-  "keywords": [
-    "job-portal",
-    "recruitment",
-    "node.js",
-    "express",
-    "ejs",
-    "mysql"
-  ],
-  "author": "RexJobs Team",
-  "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.1508.0",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "express-ejs-layouts": "^2.5.1",
-    "express-flash": "^0.0.2",
     "express-session": "^1.17.3",
-    "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
     "knex": "^3.1.0",
-    "method-override": "^3.0.0",
     "moment": "^2.30.1",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.6.5",
-    "nodemailer": "^6.9.7",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
   },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
-  }
+  "engines": { "node": ">=18.0.0" }
 }

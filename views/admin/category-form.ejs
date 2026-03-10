@@ -1,0 +1,110 @@
+<div class="admin-wrapper">
+  <%- include('../partials/adminsidebar') %>
+  <div class="admin-content">
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <a href="/admin/categories" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <div>
+        <h4 class="fw-bold mb-0"><%= title %></h4>
+        <p class="text-muted small mb-0"><%= cat ? 'Update category details' : 'Create a new job category' %></p>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
+        <div class="form-card">
+
+          <form method="POST"
+                action="<%= cat ? '/admin/categories/' + cat.categoryid + '/update' : '/admin/categories/store' %>">
+
+            <!-- Category Name -->
+            <div class="mb-3">
+              <label class="form-label">Category Name <span class="text-danger">*</span></label>
+              <input type="text" name="categoryname" class="form-control" required
+                     value="<%= cat ? cat.categoryname : '' %>"
+                     placeholder="e.g. Information Technology, Finance, Healthcare">
+              <div class="form-text">This name appears on the job listings page.</div>
+            </div>
+
+            <!-- Parent Category -->
+            <div class="mb-3">
+              <label class="form-label">Parent Category
+                <span class="text-muted fw-normal small">(leave blank to create root category)</span>
+              </label>
+              <select name="parent_id" class="form-select" id="parentSelect">
+                <option value="">— Root Category (Top Level) —</option>
+                <%
+                  // Build indented options from flat sorted list
+                  function renderOpts(items, currentId, selectedId) {
+                    let out = '';
+                    function recurse(pid, depth) {
+                      const children = items.filter(i => {
+                        if (pid === null) return !i.parent_id;
+                        return String(i.parent_id) === String(pid);
+                      });
+                      for (const n of children) {
+                        if (currentId && String(n.categoryid) === String(currentId)) continue;
+                        const indent = '\u00A0\u00A0\u00A0'.repeat(depth);
+                        const prefix = depth > 0 ? '└ ' : '';
+                        const sel    = (selectedId && String(n.categoryid) === String(selectedId)) ? 'selected' : '';
+                        out += `<option value="${n.categoryid}" ${sel}>${indent}${prefix}${n.categoryname}</option>`;
+                        recurse(n.categoryid, depth + 1);
+                      }
+                    }
+                    recurse(null, 0);
+                    return out;
+                  }
+                %>
+                <%- renderOpts(flat, cat ? cat.categoryid : null, cat ? cat.parent_id : null) %>
+              </select>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+              <label class="form-label">Description <span class="text-muted fw-normal small">(optional)</span></label>
+              <textarea name="categorydescription" class="form-control" rows="3"
+                        placeholder="Briefly describe this category..."><%= cat ? (cat.categorydescription || '') : '' %></textarea>
+            </div>
+
+            <!-- Sort Order + Status -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-4">
+                <label class="form-label">Sort Order</label>
+                <input type="number" name="sort_order" class="form-control"
+                       value="<%= cat ? (cat.sort_order || 0) : 0 %>" min="0" max="999">
+                <div class="form-text">Lower = appears first</div>
+              </div>
+              <% if (cat) { %>
+              <div class="col-md-4">
+                <label class="form-label">Status</label>
+                <select name="isactive" class="form-select">
+                  <option value="1" <%= cat.isactive ? 'selected' : '' %>>✅ Active</option>
+                  <option value="0" <%= !cat.isactive ? 'selected' : '' %>>❌ Inactive</option>
+                </select>
+              </div>
+              <% } %>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary px-5">
+                <i class="fas fa-save me-2"></i><%= cat ? 'Update Category' : 'Create Category' %>
+              </button>
+              <a href="/admin/categories" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Pre-fill parent from ?parent= query param (when clicking "Add Sub-category")
+const preParent = new URLSearchParams(window.location.search).get('parent');
+if (preParent) {
+  const opt = document.querySelector(`#parentSelect option[value="${preParent}"]`);
+  if (opt) opt.selected = true;
+}
+</script>

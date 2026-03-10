@@ -1,45 +1,54 @@
-<h4 class="text-center mb-4">Create an Account</h4>
+<h5 class="fw-bold mb-1">Create your account</h5>
+<p class="text-muted small mb-4">Join thousands of job seekers and employers</p>
 
-<form action="/account/signup" method="POST">
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label for="fname" class="form-label">First Name</label>
-            <input type="text" class="form-control" id="fname" name="fname" required>
-        </div>
-        <div class="col-md-6 mb-3">
-            <label for="lname" class="form-label">Last Name</label>
-            <input type="text" class="form-control" id="lname" name="lname" required>
-        </div>
+<form method="POST" action="/account/signup">
+  <div class="row g-2 mb-2">
+    <div class="col-6">
+      <label class="form-label">First Name <span class="text-danger">*</span></label>
+      <input type="text" name="fname" class="form-control" required placeholder="John" autocomplete="given-name">
     </div>
-    
-    <div class="mb-3">
-        <label for="email" class="form-label">Email Address</label>
-        <input type="email" class="form-control" id="email" name="email" required>
+    <div class="col-6">
+      <label class="form-label">Last Name <span class="text-danger">*</span></label>
+      <input type="text" name="lname" class="form-control" required placeholder="Doe" autocomplete="family-name">
     </div>
-    
-    <div class="mb-3">
-        <label for="mobile" class="form-label">Mobile Number</label>
-        <input type="tel" class="form-control" id="mobile" name="mobile" required>
-    </div>
-    
-    <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" class="form-control" id="password" name="password" required minlength="6">
-        <div class="form-text">Minimum 6 characters</div>
-    </div>
-    
-    <div class="mb-3">
-        <label for="password2" class="form-label">Confirm Password</label>
-        <input type="password" class="form-control" id="password2" name="password2" required>
-    </div>
-    
-    <button type="submit" class="btn btn-primary w-100 mb-3">
-        <i class="fas fa-user-plus"></i> Sign Up
-    </button>
+  </div>
+
+  <div class="mb-2">
+    <label class="form-label">Email Address <span class="text-danger">*</span></label>
+    <input type="email" name="email" class="form-control" required placeholder="you@email.com" autocomplete="email">
+  </div>
+
+  <div class="mb-2">
+    <label class="form-label">Mobile</label>
+    <input type="tel" name="mobile" class="form-control" placeholder="+91 9999999999" autocomplete="tel">
+  </div>
+
+  <div class="mb-2">
+    <label class="form-label">I am a…</label>
+    <select name="role" class="form-select">
+      <option value="4">🔍 Job Seeker — Apply for jobs</option>
+      <option value="3">🏢 Employer — Post jobs</option>
+    </select>
+  </div>
+
+  <div class="mb-2">
+    <label class="form-label">Password <span class="text-danger">*</span></label>
+    <input type="password" name="password" class="form-control" required
+           placeholder="Minimum 6 characters" minlength="6" autocomplete="new-password">
+  </div>
+
+  <div class="mb-4">
+    <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
+    <input type="password" name="password2" class="form-control" required
+           placeholder="Repeat your password" minlength="6" autocomplete="new-password">
+  </div>
+
+  <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+    <i class="fas fa-user-plus me-2"></i>Create Account
+  </button>
 </form>
 
-<hr class="my-4">
-
-<div class="text-center">
-    <p class="mb-0">Already have an account? <a href="/account/login">Login</a></p>
-</div>
+<div class="divider mt-4"><span>Already have an account?</span></div>
+<a href="/account/login" class="btn btn-outline-primary w-100 fw-semibold">
+  <i class="fas fa-sign-in-alt me-2"></i>Sign In
+</a>

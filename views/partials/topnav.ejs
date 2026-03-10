@@ -1,0 +1,108 @@
+<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top" style="border-bottom:1px solid #e2e8f0;">
+    <div class="container">
+
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" href="/">
+            <i class="fas fa-briefcase"></i>
+            <%= appName || 'RexJobs' %>
+        </a>
+
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler border-0" type="button"
+                data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-controls="mainNav" aria-expanded="false">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Nav Links -->
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link fw-500" href="/"><i class="fas fa-home me-1"></i>Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-500" href="/jobs/category"><i class="fas fa-search me-1"></i>Browse Jobs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-500" href="/about"><i class="fas fa-info-circle me-1"></i>About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-500" href="/contact"><i class="fas fa-envelope me-1"></i>Contact</a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+                <% if (locals.user && user) { %>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle fw-500" href="#"
+                           id="userDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i><%= user.fname || 'Account' %>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 py-2"
+                            aria-labelledby="userDropdown">
+
+                            <% if (user.isadmin || user.issuperadmin) { %>
+                                <li><h6 class="dropdown-header text-muted small text-uppercase">Admin</h6></li>
+                                <li><a class="dropdown-item py-2" href="/admin/dashboard">
+                                        <i class="fas fa-tachometer-alt me-2 text-primary"></i>Dashboard</a></li>
+                                <li><a class="dropdown-item py-2" href="/admin/categories">
+                                        <i class="fas fa-folder me-2 text-primary"></i>Categories</a></li>
+                                <li><a class="dropdown-item py-2" href="/admin/jobs">
+                                        <i class="fas fa-briefcase me-2 text-primary"></i>Manage Jobs</a></li>
+                                <li><a class="dropdown-item py-2" href="/admin/applications">
+                                        <i class="fas fa-file-alt me-2 text-primary"></i>Applications</a></li>
+                                <li><hr class="dropdown-divider"></li>
+
+                            <% } else if (user.usertypeid == 3) { %>
+                                <li><h6 class="dropdown-header text-muted small text-uppercase">Employer</h6></li>
+                                <li><a class="dropdown-item py-2" href="/employer/dashboard">
+                                        <i class="fas fa-building me-2 text-primary"></i>My Dashboard</a></li>
+                                <li><a class="dropdown-item py-2" href="/employer/jobs/create">
+                                        <i class="fas fa-plus-circle me-2 text-success"></i>Post a Job</a></li>
+                                <li><hr class="dropdown-divider"></li>
+
+                            <% } else { %>
+                                <li><a class="dropdown-item py-2" href="/user/dashboard">
+                                        <i class="fas fa-home me-2 text-primary"></i>My Dashboard</a></li>
+                                <li><a class="dropdown-item py-2" href="/my-applications">
+                                        <i class="fas fa-list me-2 text-primary"></i>My Applications</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                            <% } %>
+
+                            <li><a class="dropdown-item py-2" href="/account/profile">
+                                    <i class="fas fa-user-edit me-2 text-secondary"></i>My Profile</a></li>
+                            <li><a class="dropdown-item py-2 text-danger" href="/account/logout">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+
+                <% } else { %>
+                    <li class="nav-item">
+                        <a class="nav-link fw-500" href="/account/login">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-primary btn-sm px-3" href="/account/signup">
+                            <i class="fas fa-user-plus me-1"></i>Sign Up
+                        </a>
+                    </li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<script>
+    // Active link highlight
+    document.addEventListener('DOMContentLoaded', function () {
+        const path = window.location.pathname;
+        document.querySelectorAll('.nav-link').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href !== '#' && (href === path || (href !== '/' && path.startsWith(href)))) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>

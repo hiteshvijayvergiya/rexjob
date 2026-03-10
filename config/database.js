@@ -1,20 +1,12 @@
-// config/database.js - Database Connection
-const knex = require('knex');
-const knexConfig = require('../knexfile');
+// config/database.js
+const knex  = require('knex');
+const config = require('../knexfile');
+const env   = process.env.NODE_ENV || 'development';
 
-const environment = process.env.NODE_ENV || 'development';
-const config = knexConfig[environment];
+const db = knex(config[env]);
 
-const db = knex(config);
-
-// Test database connection
 db.raw('SELECT 1')
-  .then(() => {
-    console.log('✅ Database connected successfully');
-  })
-  .catch((err) => {
-    console.error('❌ Database connection failed:', err.message);
-    process.exit(1);
-  });
+  .then(() => console.log('✅ MySQL connected successfully'))
+  .catch(err => { console.error('❌ DB connection failed:', err.message); process.exit(1); });
 
 module.exports = db;
